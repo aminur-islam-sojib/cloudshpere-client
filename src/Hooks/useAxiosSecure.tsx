@@ -1,7 +1,7 @@
 // axiosSecure.ts
 import axios from "axios";
 
-const axiosSecure = axios.create({
+export const axiosSecure = axios.create({
   baseURL: "http://localhost:5000/api",
 });
 
@@ -32,5 +32,3 @@ axiosSecure.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-export default axiosSecure;

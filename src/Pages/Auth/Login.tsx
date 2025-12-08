@@ -5,10 +5,14 @@ import {
   LockIcon,
   ShieldIcon,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useAuth } from "@/Context/AuthContext";
+import useGenerateToken from "@/Hooks/useGenerateToken";
+import type { User } from "firebase/auth";
+import axiosPublic from "@/Hooks/axiosPublic";
+import { toast } from "sonner";
 
 const GoogleIcon: React.FC = () => (
   <svg
@@ -44,18 +48,23 @@ type Inputs = {
 // Main Component
 const Login: React.FC = () => {
   const { googleLogin, login } = useAuth();
+  const [user, setUser] = useState<User | null>();
   const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  useGenerateToken(user);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
   const { register, handleSubmit } = useForm<Inputs>();
 
-  const onsubmit: SubmitHandler<Inputs> = (data) => {
+  const onsubmit: SubmitHandler<Inputs> = async (data) => {
     console.log(data);
 
     try {
-      login(data.email, data.password);
+      const userRes = await login(data.email, data.password);
+      console.log(userRes);
+      setUser(userRes.user);
     } catch (error) {
       console.log(error);
     }
@@ -63,11 +72,55 @@ const Login: React.FC = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      await googleLogin();
+      const userRes = await googleLogin();
+      console.log(userRes);
+      const userData = userRes.user;
+      setUser(userData);
     } catch (error) {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      const payloads = {
+        name: user.displayName,
+        email: user.email,
+        password: "GoogleLogin",
+      };
+
+      const fetchData = async () => {
+        try {
+          await axiosPublic.post("/api/users", payloads);
+          toast.success("User Added Successfully!");
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+          if (error.response) {
+            // Server responded with an error
+            const status = error.response.status;
+
+            if (status === 400) {
+              toast.warning(`Bad Request : "${error.response.data.message}"`);
+            } else if (status === 409) {
+              console.log("User already exists!");
+              toast.info("User Already Exist");
+            } else {
+              console.log("Server Error:", error.response.data);
+            }
+          } else if (error.request) {
+            // No response from server
+            toast.error("No response from server");
+          } else {
+            // Other unexpected errors
+            toast.error("Error:", error.message);
+            console.log("Error:", error.message);
+          }
+        }
+      };
+
+      fetchData();
+    }
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-black flex justify-center items-center">

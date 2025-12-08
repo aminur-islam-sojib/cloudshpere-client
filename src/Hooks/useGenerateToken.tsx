@@ -15,7 +15,6 @@ const useGenerateToken = (user: any) => {
         const token = res.data;
 
         localStorage.setItem("jwt_token", token);
-        console.log("JWT Saved:", token);
       } catch (error) {
         console.error("Error generating token:", error);
       }
