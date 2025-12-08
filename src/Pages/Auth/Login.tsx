@@ -45,6 +45,7 @@ type Inputs = {
 const Login: React.FC = () => {
   const { googleLogin, login } = useAuth();
   const [showPassword, setShowPassword] = useState<boolean>(false);
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };

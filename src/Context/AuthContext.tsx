@@ -12,6 +12,7 @@ import {
   type UserCredential,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase.init";
+import useGenerateToken from "@/Hooks/useGenerateToken";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -65,6 +66,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     return () => unSubscribe();
   }, []);
+  useGenerateToken(user);
 
   return (
     <AuthContext.Provider
