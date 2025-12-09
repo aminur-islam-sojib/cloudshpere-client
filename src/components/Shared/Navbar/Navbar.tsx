@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import MobileNav from "./MobileNav";
@@ -8,18 +6,20 @@ import NavLinks from "./NavLinks";
 import NavLogo from "./NavLogo";
 import clubSphereLogo from "/club_sphere_logo.png";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/Context/AuthContext";
+import UserProfileDropdown from "./UserDropDown";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
-
+  const { user } = useAuth();
   return (
     <>
       {/* Desktop Navbar */}
       <div className="hidden md:block">
-        <div className="flex justify-between items-center py-5">
+        <div className="flex justify-between items-center">
           <NavLogo />
           <NavLinks />
-          <NavAuthButton />
+          {user ? <UserProfileDropdown /> : <NavAuthButton />}
         </div>
       </div>
 

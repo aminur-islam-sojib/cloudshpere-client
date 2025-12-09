@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, type Variants } from "framer-motion";
-import { Home, Users, Calendar } from "lucide-react";
+import { Home, Users, Calendar, MessageSquarePlus } from "lucide-react";
 
 // --- MenuBar Component ---
 
@@ -34,6 +34,14 @@ const menuItems: MenuItem[] = [
     icon: <Calendar className="h-5 w-5" />,
     label: "Events",
     href: "/events",
+    gradient:
+      "radial-gradient(circle, rgba(34,197,94,0.15) 0%, rgba(22,163,74,0.06) 50%, rgba(21,128,61,0) 100%)",
+    iconColor: "group-hover:text-green-500 dark:group-hover:text-green-400",
+  },
+  {
+    icon: <MessageSquarePlus className="h-5 w-5" />,
+    label: "Create Group",
+    href: "/create-group",
     gradient:
       "radial-gradient(circle, rgba(34,197,94,0.15) 0%, rgba(22,163,74,0.06) 50%, rgba(21,128,61,0) 100%)",
     iconColor: "group-hover:text-green-500 dark:group-hover:text-green-400",

@@ -2,6 +2,8 @@ import React from "react";
 import { motion, type Variants } from "framer-motion";
 import { Calendar, Home, Users } from "lucide-react";
 import NavAuthButton from "./NavAuthButton";
+import { useAuth } from "@/Context/AuthContext";
+import UserProfileDropdown from "./UserDropDown";
 
 // --- MenuBar Component ---
 
@@ -82,9 +84,10 @@ const sharedTransition = {
 };
 
 function MobileNav(): React.JSX.Element {
+  const { user } = useAuth();
   return (
     <motion.nav
-      className="p-2 rounded-2xl bg-white/60 dark:bg-black/60 backdrop-blur-lg border border-gray-200/80 dark:border-gray-800/80 shadow-lg dark:shadow-gray-900/20 relative overflow-hidden"
+      className="p-2 rounded-2xl bg-white/60 dark:bg-black/60 backdrop-blur-lg border border-gray-200/80 dark:border-gray-800/80 shadow-lg dark:shadow-gray-900/20 relative "
       initial="initial"
       whileHover="hover"
     >
@@ -184,7 +187,7 @@ function MobileNav(): React.JSX.Element {
           </motion.li>
         ))}
       </ul>
-      <NavAuthButton />
+      {user ? <UserProfileDropdown /> : <NavAuthButton />}
     </motion.nav>
   );
 }
