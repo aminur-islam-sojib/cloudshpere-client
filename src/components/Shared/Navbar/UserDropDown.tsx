@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef, type ReactNode } from "react";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
 import ThemeToggle from "../ThemeToggle/ThemeToggle";
+import { useNavigate } from "react-router";
 
 interface DropdownMenuProps {
   children: ReactNode;
@@ -78,6 +79,7 @@ const DropdownMenuSeparator = () => (
 
 export default function UserProfileDropdown() {
   const { logOut, user } = useAuth();
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     Swal.fire({
@@ -152,10 +154,11 @@ export default function UserProfileDropdown() {
         <DropdownMenuSeparator />
 
         <div className="py-1">
-          <DropdownMenuItem onClick={() => console.log("Help")}>
+          <DropdownMenuItem onClick={() => navigate("/dashboard")}>
             <HelpCircle className="mr-3 h-4 w-4 text-zinc-500" />
-            Help & Support
+            Dashboard
           </DropdownMenuItem>
+
           <DropdownMenuItem onClick={handleSignOut}>
             <LogOut className="mr-3 h-4 w-4 text-zinc-500" />
             Sign Out

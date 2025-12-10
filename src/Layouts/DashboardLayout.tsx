@@ -19,6 +19,7 @@ import { useAuth } from "@/Context/AuthContext";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
 import useGetRole from "@/Hooks/useGetRole";
+// import UserProfileDropdown from "@/components/Shared/Navbar/UserDropDown";
 
 // Define navigation item type
 interface NavItem {
@@ -51,9 +52,9 @@ const DashboardLayout = () => {
     },
     {
       icon: Calendar,
-      label: "Events",
-      path: "/dashboard/events",
-      roles: ["admin", "manager"], // Admin and manager only
+      label: "Requested  ",
+      path: "/dashboard/requested-group",
+      roles: ["admin"],
     },
     {
       icon: UserCircle,
@@ -233,6 +234,7 @@ const DashboardLayout = () => {
                   <UserCircle className="w-6 h-6 text-white" />
                 )}
               </div>
+              {/* <UserProfileDropdown /> */}
               <ChevronDown className="w-4 h-4 text-slate-600 dark:text-slate-400" />
             </div>
           </div>
