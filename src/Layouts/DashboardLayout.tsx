@@ -1,4 +1,5 @@
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useMemo } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
 import {
   LayoutDashboard,
@@ -11,31 +12,89 @@ import {
   Search,
   ChevronDown,
   LogOut,
+  Calendar,
+  UserCircle,
 } from "lucide-react";
 import { useAuth } from "@/Context/AuthContext";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
 import useGetRole from "@/Hooks/useGetRole";
 
+// Define navigation item type
+interface NavItem {
+  icon: any;
+  label: string;
+  path: string;
+  roles?: string[]; // Optional: restrict to specific roles
+}
+
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logOut } = useAuth();
+  const { role, isLoading: roleLoading } = useGetRole(); // Assuming useGetRole returns {role, loading}
 
-  const navItems = [
-    { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-    { icon: Users, label: "Users", path: "/dashboard/users" },
-    { icon: BarChart3, label: "Reports", path: "/dashboard/reports" },
-    { icon: Settings, label: "Settings", path: "/dashboard/settings" },
+  // Define all possible navigation items with role restrictions
+  const allNavItems: NavItem[] = [
+    {
+      icon: LayoutDashboard,
+      label: "Dashboard",
+      path: "/dashboard",
+      roles: ["admin", "manager", "member"], // Available to all
+    },
+    {
+      icon: Users,
+      label: "Users",
+      path: "/dashboard/users",
+      roles: ["admin"], // Only admin can see this
+    },
+    {
+      icon: Calendar,
+      label: "Events",
+      path: "/dashboard/events",
+      roles: ["admin", "manager"], // Admin and manager only
+    },
+    {
+      icon: UserCircle,
+      label: "My Profile",
+      path: "/dashboard/profile",
+      roles: ["admin", "manager", "member"], // Available to all
+    },
+    {
+      icon: BarChart3,
+      label: "Reports",
+      path: "/dashboard/reports",
+      roles: ["admin", "manager"], // Admin and manager only
+    },
+    {
+      icon: Settings,
+      label: "Settings",
+      path: "/dashboard/settings",
+      roles: ["admin", "manager", "member"], // Available to all
+    },
   ];
+
+  // Filter navigation items based on user role using useMemo for performance
+  const navItems = useMemo(() => {
+    if (!role) return [];
+
+    return allNavItems.filter((item) => {
+      // If no roles specified, show to everyone
+      if (!item.roles || item.roles.length === 0) return true;
+
+      // Check if user's role is in the allowed roles
+      return item.roles.includes(role);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role]);
 
   const isActive = (path: string) => location.pathname === path;
 
   const handleLogOut = () => {
     Swal.fire({
       title: "Are you sure?",
-      text: "You wanna log out this account!",
+      text: "You want to log out of this account!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -44,12 +103,23 @@ const DashboardLayout = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         await logOut();
-        toast.success("Log Out Successfully!");
+        toast.success("Logged Out Successfully!");
+        navigate("/login");
       }
     });
   };
 
-  const role = useGetRole();
+  // Show loading state while role is being fetched
+  if (roleLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-900">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-300">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-white dark:bg-black">
@@ -82,7 +152,7 @@ const DashboardLayout = () => {
                 onClick={() => navigate(item.path)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                   active
-                    ? "bg-indigo-600 text-white"
+                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/50"
                     : "text-slate-300 hover:bg-slate-800 hover:text-white"
                 }`}
               >
@@ -99,7 +169,7 @@ const DashboardLayout = () => {
         <div className="p-4 border-t border-slate-800">
           <button
             onClick={handleLogOut}
-            className="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-lg transition-all"
+            className="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-red-600/20 hover:text-red-400 rounded-lg transition-all"
           >
             <LogOut className="w-5 h-5 shrink-0" />
             {sidebarOpen && <span className="text-sm font-medium">Logout</span>}
@@ -146,15 +216,23 @@ const DashboardLayout = () => {
             <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800">
               <div className="hidden sm:block text-right">
                 <p className="text-sm font-medium text-slate-900 dark:text-white">
-                  {user?.displayName}
+                  {user?.displayName || "User"}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {role}
+                <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">
+                  {role || "Loading..."}
                 </p>
               </div>
-              <button className="w-10 h-10 bg-linear-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center">
-                <img src={user?.photoURL || null || undefined} alt="" />
-              </button>
+              <div className="w-10 h-10 bg-linear-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center overflow-hidden">
+                {user?.photoURL ? (
+                  <img
+                    src={user.photoURL}
+                    alt={user?.displayName || "User"}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <UserCircle className="w-6 h-6 text-white" />
+                )}
+              </div>
               <ChevronDown className="w-4 h-4 text-slate-600 dark:text-slate-400" />
             </div>
           </div>

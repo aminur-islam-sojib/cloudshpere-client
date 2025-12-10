@@ -10,6 +10,7 @@ import UsersPage from "@/Pages/Dashboard/UsersPage";
 import ReportsPage from "@/Pages/Dashboard/ReportsPage";
 import SettingsPage from "@/Pages/Dashboard/SettingsPage";
 import { createBrowserRouter } from "react-router";
+import AdminRoute from "@/Layouts/AdminRoute";
 
 export const router = createBrowserRouter([
   {
@@ -52,7 +53,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "users",
-        element: <UsersPage />,
+        element: (
+          <AdminRoute>
+            <UsersPage />,
+          </AdminRoute>
+        ),
       },
       {
         path: "reports",

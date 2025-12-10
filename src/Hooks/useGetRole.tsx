@@ -1,28 +1,27 @@
 import { useAuth } from "@/Context/AuthContext";
-
-import { useEffect, useState } from "react";
 import { axiosSecure } from "./useAxiosSecure";
+import { useQuery } from "@tanstack/react-query";
 
 const useGetRole = () => {
   const { user } = useAuth();
-  const [userRole, setUserRole] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!user?.email) return;
-    const fetchData = async () => {
-      try {
-        const res = await axiosSecure.get(`/getRole/${user.email}`);
-        console.log(res.data);
-        setUserRole(res.data.role);
-      } catch (error) {
-        console.log(error);
-      }
-    };
+  const {
+    data: role,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ["user-role", user?.email],
+    queryFn: async () => {
+      if (!user?.email) return null;
+      const res = await axiosSecure.get(`/getRole/${user.email}`);
+      return res.data.role;
+    },
+    enabled: !!user?.email,
+    staleTime: 1000 * 60 * 5,
+  });
 
-    fetchData();
-  }, [user?.email]);
-
-  return userRole;
+  return { role, isLoading, isError, refetch };
 };
 
 export default useGetRole;
