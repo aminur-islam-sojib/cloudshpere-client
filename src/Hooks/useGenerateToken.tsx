@@ -11,8 +11,12 @@ const useGenerateToken = (user: any) => {
       }
 
       try {
-        const res = await axiosPublic.post("/generateToken", user);
-        const token = res.data;
+        const res = await axiosPublic.post("/api/auth/jwt", {
+          email: user.email,
+          name: user.displayName || "User",
+          photoURL: user.photoURL || "",
+        });
+        const token = res.data.token;
 
         localStorage.setItem("jwt_token", token);
       } catch (error) {

@@ -4,7 +4,7 @@ import Login from "@/Pages/Auth/Login";
 import Register from "@/Pages/Auth/Register";
 import ClubForm from "@/Pages/CreateGroup";
 import Home from "@/Pages/Home";
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter } from "react-router";
 
 export const router = createBrowserRouter([
   {

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { Upload, X, Loader2 } from "lucide-react";
+import { axiosSecure } from "@/Hooks/useAxiosSecure";
+import { useAuth } from "@/Context/AuthContext";
 
 const categories = [
   "Photography",
@@ -41,12 +43,13 @@ export default function ClubForm() {
   const [imagePreview, setImagePreview] = useState<string>("");
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string>("");
+  const { user } = useAuth();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
+    // reset,
     setValue,
     watch,
   } = useForm<ClubFormData>({
@@ -145,12 +148,28 @@ export default function ClubForm() {
     setUploadError("");
   };
 
-  const onSubmit: SubmitHandler<ClubFormData> = (data) => {
+  const onSubmit: SubmitHandler<ClubFormData> = async (data) => {
     console.log("Form Data:", data);
     // Here you can send data to your backend
+    const clubDetails = {
+      clubName: data.clubName,
+      description: data.description,
+      category: data.category,
+      location: data.location,
+      bannerImage: data.bannerImage,
+      membershipFee: data.membershipFee,
+      managerEmail: user?.email,
+    };
+    try {
+      const res = await axiosSecure.post("/clubs", clubDetails);
+      const user = await res.data;
+      console.log(user);
+    } catch (error) {
+      console.log(error);
+    }
     // All fields including bannerImage URL are in the data object
     alert("Club registration submitted successfully!");
-    reset();
+    // reset();
     setImagePreview("");
   };
 
@@ -384,6 +403,7 @@ export default function ClubForm() {
               <input
                 id="managerEmail"
                 type="email"
+                value={user?.email || null || undefined}
                 {...register("managerEmail", {
                   required: "Manager email is required",
                   pattern: {
@@ -392,7 +412,6 @@ export default function ClubForm() {
                   },
                 })}
                 className="w-full px-4 py-2 rounded-lg border transition-colors bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:border-blue-500 dark:focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                placeholder="manager@example.com"
               />
               {errors.managerEmail && (
                 <p className="text-red-500 text-sm mt-1">
