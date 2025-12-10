@@ -11,13 +11,17 @@ import {
   Search,
   ChevronDown,
   LogOut,
-  User,
 } from "lucide-react";
+import { useAuth } from "@/Context/AuthContext";
+import Swal from "sweetalert2";
+import { toast } from "sonner";
+import useGetRole from "@/Hooks/useGetRole";
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logOut } = useAuth();
 
   const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
@@ -27,6 +31,25 @@ const DashboardLayout = () => {
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleLogOut = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You wanna log out this account!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, Log Out!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await logOut();
+        toast.success("Log Out Successfully!");
+      }
+    });
+  };
+
+  const role = useGetRole();
 
   return (
     <div className="flex h-screen bg-white dark:bg-black">
@@ -74,7 +97,10 @@ const DashboardLayout = () => {
 
         {/* User Profile & Logout */}
         <div className="p-4 border-t border-slate-800">
-          <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-lg transition-all">
+          <button
+            onClick={handleLogOut}
+            className="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 rounded-lg transition-all"
+          >
             <LogOut className="w-5 h-5 shrink-0" />
             {sidebarOpen && <span className="text-sm font-medium">Logout</span>}
           </button>
@@ -120,14 +146,14 @@ const DashboardLayout = () => {
             <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800">
               <div className="hidden sm:block text-right">
                 <p className="text-sm font-medium text-slate-900 dark:text-white">
-                  John Doe
+                  {user?.displayName}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Admin
+                  {role}
                 </p>
               </div>
               <button className="w-10 h-10 bg-linear-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-white" />
+                <img src={user?.photoURL || null || undefined} alt="" />
               </button>
               <ChevronDown className="w-4 h-4 text-slate-600 dark:text-slate-400" />
             </div>

@@ -102,7 +102,7 @@ export default function UserProfileDropdown() {
         trigger={
           <button className="flex items-center space-x-3 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
             <div className="w-8 h-8 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-              <img src={user?.photoURL} alt="" />
+              <img src={user?.photoURL || null || undefined} alt="" />
             </div>
             <div className="text-left">
               <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
@@ -118,7 +118,7 @@ export default function UserProfileDropdown() {
         <div className="px-3 py-3 border-b border-zinc-200 dark:border-zinc-700">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-              <img src={user?.photoURL} alt="" />
+              <img src={user?.photoURL || null || undefined} alt="" />
             </div>
             <div>
               <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
