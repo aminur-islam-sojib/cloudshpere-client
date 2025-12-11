@@ -135,6 +135,7 @@ const Login: React.FC = () => {
       name: user.displayName,
       email: user.email,
       password: "GoogleLogin",
+      photoURl: user.photoURL,
     };
 
     const saveUser = async () => {

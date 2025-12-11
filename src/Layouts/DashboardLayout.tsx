@@ -46,7 +46,7 @@ const DashboardLayout = () => {
     },
     {
       icon: Users,
-      label: "Users",
+      label: "All Users",
       path: "/dashboard/users",
       roles: ["admin"], // Only admin can see this
     },
@@ -55,12 +55,6 @@ const DashboardLayout = () => {
       label: "Requested  ",
       path: "/dashboard/requested-group",
       roles: ["admin"],
-    },
-    {
-      icon: UserCircle,
-      label: "My Profile",
-      path: "/dashboard/profile",
-      roles: ["admin", "manager", "member"], // Available to all
     },
     {
       icon: BarChart3,
@@ -72,7 +66,7 @@ const DashboardLayout = () => {
       icon: Settings,
       label: "Settings",
       path: "/dashboard/settings",
-      roles: ["admin", "manager", "member"], // Available to all
+      roles: ["admin", "manager", "member"],
     },
   ];
 

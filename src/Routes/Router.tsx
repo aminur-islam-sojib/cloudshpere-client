@@ -12,6 +12,7 @@ import SettingsPage from "@/Pages/Dashboard/SettingsPage";
 import { createBrowserRouter } from "react-router";
 import AdminRoute from "@/Layouts/AdminRoute";
 import RequestedGroupPage from "@/Pages/Dashboard/RequestedGroupPage";
+import UsersGroupPage from "@/Pages/Dashboard/UsersGroupPage";
 
 export const router = createBrowserRouter([
   {
@@ -71,6 +72,10 @@ export const router = createBrowserRouter([
       {
         path: "requested-group",
         element: <RequestedGroupPage />,
+      },
+      {
+        path: "users-group",
+        element: <UsersGroupPage />,
       },
     ],
   },
