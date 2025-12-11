@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Card,
   CardContent,
@@ -5,159 +6,285 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Settings, Bell, Lock, Globe } from "lucide-react";
+import { Settings, Bell, Lock, Globe, Eye, EyeOff } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { useAuth } from "@/Context/AuthContext";
+import { toast } from "sonner";
+import {
+  updateProfile,
+  updateEmail,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+} from "firebase/auth";
+
+type UserData = {
+  name: string;
+  email: string;
+};
+
+type PasswordForm = {
+  currentPass: string;
+  newPass: string;
+  confirmPass: string;
+};
+
+type ThemeForm = {
+  theme: "light" | "dark" | "auto";
+};
 
 const SettingsPage = () => {
+  const { user } = useAuth();
+
+  const { register, handleSubmit, reset } = useForm<UserData>();
+  const passwordForm = useForm<PasswordForm>();
+  const themeForm = useForm<ThemeForm>({
+    defaultValues: {
+      theme:
+        ((localStorage.getItem("theme") as "light" | "dark" | "auto") ||
+          "auto") ??
+        "auto",
+    },
+  });
+
+  // Password visibility toggles
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  // Auto-fill user data when Firebase user loads
+  useEffect(() => {
+    if (user) {
+      reset({
+        name: user.displayName || "",
+        email: user.email || "",
+      });
+    }
+  }, [user, reset]);
+
+  // ------------------------------------------------------
+  // UPDATE BASIC USER INFO (NAME + EMAIL) USING FIREBASE
+  // ------------------------------------------------------
+  const onSubmitUser = async (data: UserData) => {
+    if (!user) return;
+
+    try {
+      // Update Name
+      if (data.name && data.name !== user.displayName) {
+        await updateProfile(user, { displayName: data.name });
+        toast.success("Name updated successfully!");
+      }
+
+      // Update Email
+      if (data.email && data.email !== user.email) {
+        await updateEmail(user, data.email);
+        toast.success("Email updated successfully!");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update user info");
+    }
+  };
+
+  // ------------------------------------------------------
+  // UPDATE PASSWORD (NEEDS REAUTH)
+  // ------------------------------------------------------
+  const onSubmitPassword = async (data: PasswordForm) => {
+    if (!user || !user.email) return;
+
+    if (data.newPass !== data.confirmPass) {
+      toast.error("New password and confirm password do not match!");
+      return;
+    }
+
+    try {
+      // Re-authenticate user
+      const credential = EmailAuthProvider.credential(
+        user.email,
+        data.currentPass
+      );
+      await reauthenticateWithCredential(user, credential);
+
+      // Update password
+      await updatePassword(user, data.newPass);
+      toast.success("Password changed successfully!");
+
+      passwordForm.reset();
+    } catch (err: any) {
+      toast.error(err.message || "Password update failed");
+    }
+  };
+
+  // ------------------------------------------------------
+  // UPDATE THEME (LOCAL ONLY)
+  // ------------------------------------------------------
+  const onSubmitTheme = (data: ThemeForm) => {
+    localStorage.setItem("theme", data.theme);
+    toast.success("Theme updated!");
+  };
+
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-          Settings
-        </h1>
+        <h1 className="text-3xl font-bold dark:text-white">Settings</h1>
         <p className="text-slate-600 dark:text-slate-400">
           Manage your account and application settings.
         </p>
       </div>
 
       <div className="space-y-6">
-        {/* Account Settings */}
-        <Card className="border-slate-200 dark:border-slate-700">
+        {/* ======================== ACCOUNT SETTINGS ======================= */}
+        <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="w-5 h-5" />
-              Account Settings
+            <CardTitle className="flex gap-2 items-center">
+              <Settings /> Account Settings
             </CardTitle>
-            <CardDescription>Manage your account information</CardDescription>
+            <CardDescription>Update your personal info</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  defaultValue="John Doe"
-                  className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                />
+
+          <form onSubmit={handleSubmit(onSubmitUser)}>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Full Name</label>
+                  <input
+                    type="text"
+                    {...register("name")}
+                    className="w-full px-4 py-2 rounded-lg border bg-white dark:bg-slate-800"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Email</label>
+                  <input
+                    type="email"
+                    {...register("email")}
+                    className="w-full px-4 py-2 rounded-lg border bg-white dark:bg-slate-800"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  defaultValue="john@example.com"
-                  className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                />
-              </div>
-            </div>
-            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
-              Save Changes
-            </button>
-          </CardContent>
+
+              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg">
+                Save Changes
+              </button>
+            </CardContent>
+          </form>
         </Card>
 
-        {/* Notification Settings */}
-        <Card className="border-slate-200 dark:border-slate-700">
+        {/* ========================== NOTIFICATIONS ======================== */}
+        <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="w-5 h-5" />
-              Notification Preferences
+            <CardTitle className="flex gap-2 items-center">
+              <Bell /> Notification Preferences
             </CardTitle>
-            <CardDescription>
-              Manage how you receive notifications
-            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {[
-              { label: "Email Notifications", enabled: true },
-              { label: "Push Notifications", enabled: true },
-              { label: "SMS Alerts", enabled: false },
-              { label: "Weekly Reports", enabled: true },
-            ].map((item, i) => (
-              <label key={i} className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  defaultChecked={item.enabled}
-                  className="w-4 h-4 rounded"
-                />
-                <span className="text-slate-700 dark:text-slate-300">
-                  {item.label}
-                </span>
+          <CardContent className="space-y-3">
+            {["Email", "SMS", "Push"].map((n) => (
+              <label key={n} className="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" className="w-4 h-4" defaultChecked />
+                <span>{n} Notifications</span>
               </label>
             ))}
           </CardContent>
         </Card>
 
-        {/* Security Settings */}
-        <Card className="border-slate-200 dark:border-slate-700">
+        {/* =========================== SECURITY ============================ */}
+        <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lock className="w-5 h-5" />
-              Security Settings
+            <CardTitle className="flex gap-2 items-center">
+              <Lock /> Security Settings
             </CardTitle>
-            <CardDescription>Secure your account</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
-                Current Password
-              </label>
-              <input
-                type="password"
-                className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
-                  New Password
-                </label>
+
+          <form onSubmit={passwordForm.handleSubmit(onSubmitPassword)}>
+            <CardContent className="space-y-4">
+              {/* Current Password */}
+              <div className="relative">
+                <label className="text-sm font-medium">Current Password</label>
                 <input
-                  type="password"
-                  className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  type={showCurrent ? "text" : "password"}
+                  {...passwordForm.register("currentPass")}
+                  className="w-full px-4 py-2 border rounded-lg dark:bg-slate-800"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrent(!showCurrent)}
+                  className="absolute right-3 top-9"
+                >
+                  {showCurrent ? <EyeOff /> : <Eye />}
+                </button>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-                />
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {/* New Password */}
+                <div className="relative">
+                  <label className="text-sm font-medium">New Password</label>
+                  <input
+                    type={showNew ? "text" : "password"}
+                    {...passwordForm.register("newPass")}
+                    className="w-full px-4 py-2 border rounded-lg dark:bg-slate-800"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNew(!showNew)}
+                    className="absolute right-3 top-9"
+                  >
+                    {showNew ? <EyeOff /> : <Eye />}
+                  </button>
+                </div>
+
+                {/* Confirm Password */}
+                <div className="relative">
+                  <label className="text-sm font-medium">
+                    Confirm Password
+                  </label>
+                  <input
+                    type={showConfirm ? "text" : "password"}
+                    {...passwordForm.register("confirmPass")}
+                    className="w-full px-4 py-2 border rounded-lg dark:bg-slate-800"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm(!showConfirm)}
+                    className="absolute right-3 top-9"
+                  >
+                    {showConfirm ? <EyeOff /> : <Eye />}
+                  </button>
+                </div>
               </div>
-            </div>
-            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
-              Change Password
-            </button>
-          </CardContent>
+
+              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg">
+                Change Password
+              </button>
+            </CardContent>
+          </form>
         </Card>
 
-        {/* Appearance Settings */}
-        <Card className="border-slate-200 dark:border-slate-700">
+        {/* ============================ APPEARANCE ========================== */}
+        <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Globe className="w-5 h-5" />
-              Appearance
+            <CardTitle className="flex gap-2 items-center">
+              <Globe /> Appearance
             </CardTitle>
-            <CardDescription>
-              Customize your dashboard appearance
-            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-900 dark:text-white mb-2">
-                Theme
-              </label>
-              <select className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white">
-                <option>Light</option>
-                <option>Dark</option>
-                <option>Auto</option>
+
+          <form onSubmit={themeForm.handleSubmit(onSubmitTheme)}>
+            <CardContent className="space-y-4">
+              <label className="text-sm font-medium">Theme</label>
+              <select
+                {...themeForm.register("theme")}
+                className="w-full px-4 py-2 border rounded-lg dark:bg-slate-800"
+              >
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="auto">Auto</option>
               </select>
-            </div>
-          </CardContent>
+
+              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg">
+                Save Theme
+              </button>
+            </CardContent>
+          </form>
         </Card>
       </div>
     </div>
