@@ -5,7 +5,6 @@ import Login from "@/Pages/Auth/Login";
 import Register from "@/Pages/Auth/Register";
 import ClubForm from "@/Pages/CreateGroup";
 import Home from "@/Pages/Home";
-import DashboardHome from "@/Pages/Dashboard/DashboardHome";
 import UsersPage from "@/Pages/Dashboard/UsersPage";
 import ReportsPage from "@/Pages/Dashboard/ReportsPage";
 import SettingsPage from "@/Pages/Dashboard/SettingsPage";
@@ -13,6 +12,10 @@ import { createBrowserRouter } from "react-router";
 import AdminRoute from "@/Layouts/AdminRoute";
 import RequestedGroupPage from "@/Pages/Dashboard/RequestedGroupPage";
 import UsersGroupPage from "@/Pages/Dashboard/UsersGroupPage";
+import DashboardHome from "@/Pages/Dashboard/DashboardHome";
+import ManagerRoute from "@/Layouts/ManagerRoute";
+import MyClubs from "@/Pages/Dashboard/MyGroups";
+import Clubs from "@/Pages/Clubs/Clubs";
 
 export const router = createBrowserRouter([
   {
@@ -39,6 +42,10 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: "clubs",
+        element: <Clubs />,
+      },
     ],
   },
   {
@@ -63,7 +70,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "reports",
-        element: <ReportsPage />,
+        element: (
+          <AdminRoute>
+            <ReportsPage />,
+          </AdminRoute>
+        ),
       },
       {
         path: "settings",
@@ -71,11 +82,27 @@ export const router = createBrowserRouter([
       },
       {
         path: "requested-group",
-        element: <RequestedGroupPage />,
+        element: (
+          <AdminRoute>
+            <RequestedGroupPage />,
+          </AdminRoute>
+        ),
       },
       {
         path: "users-group",
-        element: <UsersGroupPage />,
+        element: (
+          <AdminRoute>
+            <UsersGroupPage />,
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "my-clubs",
+        element: (
+          <ManagerRoute>
+            <MyClubs />
+          </ManagerRoute>
+        ),
       },
     ],
   },

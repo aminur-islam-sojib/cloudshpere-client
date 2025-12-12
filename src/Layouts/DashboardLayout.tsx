@@ -14,6 +14,7 @@ import {
   LogOut,
   Calendar,
   UserCircle,
+  BarChart2,
 } from "lucide-react";
 import { useAuth } from "@/Context/AuthContext";
 import Swal from "sweetalert2";
@@ -42,7 +43,7 @@ const DashboardLayout = () => {
       icon: LayoutDashboard,
       label: "Dashboard",
       path: "/dashboard",
-      roles: ["admin", "manager", "member"], // Available to all
+      roles: ["admin", "manager", "member"],
     },
     {
       icon: Users,
@@ -60,13 +61,19 @@ const DashboardLayout = () => {
       icon: BarChart3,
       label: "Reports",
       path: "/dashboard/reports",
-      roles: ["admin", "manager"], // Admin and manager only
+      roles: ["admin"], // Admin and manager only
     },
     {
       icon: Settings,
       label: "Settings",
       path: "/dashboard/settings",
       roles: ["admin", "manager", "member"],
+    },
+    {
+      icon: BarChart2,
+      label: "My Clubs",
+      path: "/dashboard/my-clubs",
+      roles: ["manager"],
     },
   ];
 

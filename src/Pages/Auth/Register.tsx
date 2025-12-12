@@ -8,12 +8,10 @@ import {
   ShieldIcon,
   User2,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useAuth } from "@/Context/AuthContext";
-import useGenerateToken from "@/Hooks/useGenerateToken";
-import type { User } from "firebase/auth";
 import axiosPublic from "@/Hooks/axiosPublic";
 import { toast } from "sonner";
 
@@ -46,13 +44,8 @@ const GoogleIcon: React.FC = () => (
 
 const Register: React.FC = () => {
   const { googleLogin, createUser, loading } = useAuth();
-  const [user, setUser] = useState<User | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-
-  useGenerateToken(user);
-  const location = useLocation();
   const navigate = useNavigate();
-  const from = location.state?.from || "/";
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
@@ -86,41 +79,6 @@ const Register: React.FC = () => {
   };
 
   // =====================================================
-  // HANDLE AXIOS ERRORS
-  // =====================================================
-  const handleAxiosError = (error: any) => {
-    if (error.response) {
-      const status = error.response.status;
-
-      if (status === 400) {
-        toast.warning(`Bad Request: ${error.response.data.message}`);
-      } else if (status === 409) {
-        toast.info("User already exists!");
-      } else if (status === 500) {
-        toast.error("Server Error (500)");
-      } else {
-        toast.error("Unexpected server error");
-      }
-    } else if (error.request) {
-      toast.error("No response from server");
-    } else {
-      toast.error("Unexpected error");
-    }
-  };
-
-  // =====================================================
-  // POST USER TO BACKEND
-  // =====================================================
-  const addUserToDB = async (payloads: Inputs) => {
-    try {
-      await axiosPublic.post("/api/users", payloads);
-      toast.success("User added successfully!");
-    } catch (error) {
-      handleAxiosError(error);
-    }
-  };
-
-  // =====================================================
   // EMAIL REGISTER SUBMIT
   // =====================================================
   const onsubmit: SubmitHandler<Inputs> = async (data) => {
@@ -131,14 +89,22 @@ const Register: React.FC = () => {
 
     try {
       const userRes = await createUser(data.email, data.password);
-      setUser(userRes.user);
 
-      await addUserToDB({
-        name: data.name,
-        email: data.email,
-        password: data.password,
-      });
-      navigate(from, { replace: true });
+      // Generate token immediately after registration
+      try {
+        const tokenRes = await axiosPublic.post("/api/auth/jwt", {
+          email: userRes.user.email,
+          name: data.name,
+          photoURL: userRes.user.photoURL || "",
+        });
+        const token = tokenRes.data.token;
+        localStorage.setItem("jwt_token", token);
+        toast.success("Registration Successful!");
+        navigate("/dashboard", { replace: true });
+      } catch (tokenError) {
+        console.error("Token generation error:", tokenError);
+        toast.error("Failed to generate authentication token");
+      }
     } catch (error) {
       handleFirebaseError(error);
     }
@@ -150,25 +116,30 @@ const Register: React.FC = () => {
   const handleGoogleLogin = async () => {
     try {
       const userRes = await googleLogin();
-      setUser(userRes.user);
-      navigate(from, { replace: true });
+
+      // Generate token for Google user
+      try {
+        const tokenRes = await axiosPublic.post("/api/auth/jwt", {
+          email: userRes.user.email,
+          name: userRes.user.displayName || "User",
+          photoURL: userRes.user.photoURL || "",
+        });
+        const token = tokenRes.data.token;
+        localStorage.setItem("jwt_token", token);
+        toast.success("Google Login Successful!");
+        navigate("/dashboard", { replace: true });
+      } catch (tokenError) {
+        console.error("Token generation error:", tokenError);
+        toast.error("Failed to generate authentication token");
+      }
     } catch (error) {
       handleFirebaseError(error);
     }
   };
 
   // =====================================================
-  // WHEN GOOGLE LOGIN SUCCESS → ADD USER TO DB
+  // WHEN GOOGLE LOGIN SUCCESS → TOKEN ALREADY GENERATED IN HANDLER
   // =====================================================
-  useEffect(() => {
-    if (user) {
-      addUserToDB({
-        name: user.displayName || "Google User",
-        email: user.email || "",
-        password: "GoogleLogin",
-      });
-    }
-  }, [user]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-black flex justify-center items-center">

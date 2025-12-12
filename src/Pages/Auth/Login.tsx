@@ -6,12 +6,10 @@ import {
   LockIcon,
   ShieldIcon,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useAuth } from "@/Context/AuthContext";
-import useGenerateToken from "@/Hooks/useGenerateToken";
-import type { User } from "firebase/auth";
 import axiosPublic from "@/Hooks/axiosPublic";
 import { toast } from "sonner";
 
@@ -55,13 +53,11 @@ type Inputs = {
 
 const Login: React.FC = () => {
   const { googleLogin, login } = useAuth();
-  const [user, setUser] = useState<User | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
-  useGenerateToken(user);
   const from = location.state?.from || "/";
   const { register, handleSubmit } = useForm<Inputs>();
 
@@ -73,9 +69,22 @@ const Login: React.FC = () => {
     try {
       setIsLoading(true);
       const userRes = await login(data.email, data.password);
-      toast.success("Login Successful!");
-      setUser(userRes.user);
-      navigate(from, { replace: true });
+
+      // Generate token immediately after successful login
+      try {
+        const tokenRes = await axiosPublic.post("/api/auth/jwt", {
+          email: userRes.user.email,
+          name: userRes.user.displayName || "User",
+          photoURL: userRes.user.photoURL || "",
+        });
+        const token = tokenRes.data.token;
+        localStorage.setItem("jwt_token", token);
+        toast.success("Login Successful!");
+        navigate(from, { replace: true });
+      } catch (tokenError) {
+        console.error("Token generation error:", tokenError);
+        toast.error("Failed to generate authentication token");
+      }
     } catch (error: any) {
       handleAuthError(error);
     } finally {
@@ -87,9 +96,22 @@ const Login: React.FC = () => {
     try {
       setIsLoading(true);
       const userRes = await googleLogin();
-      toast.success("Google Login Successful!");
-      setUser(userRes.user);
-      navigate(from, { replace: true });
+
+      // Generate token immediately after Google login
+      try {
+        const tokenRes = await axiosPublic.post("/api/auth/jwt", {
+          email: userRes.user.email,
+          name: userRes.user.displayName || "User",
+          photoURL: userRes.user.photoURL || "",
+        });
+        const token = tokenRes.data.token;
+        localStorage.setItem("jwt_token", token);
+        toast.success("Google Login Successful!");
+        navigate(from, { replace: true });
+      } catch (tokenError) {
+        console.error("Token generation error:", tokenError);
+        toast.error("Failed to generate authentication token");
+      }
     } catch (error: any) {
       handleAuthError(error);
     } finally {
@@ -122,52 +144,10 @@ const Login: React.FC = () => {
     }
   };
 
-  // ------------------------
-  // Save Google User to DB
-  // ------------------------
-  useEffect(() => {
-    if (!user) return;
-
-    // Only add user to DB if login is via Google
-    if (!user.displayName) return;
-
-    const payload = {
-      name: user.displayName,
-      email: user.email,
-      password: "GoogleLogin",
-      photoURl: user.photoURL,
-    };
-
-    const saveUser = async () => {
-      try {
-        await axiosPublic.post("/api/users", payload);
-        toast.success("User registered successfully!");
-      } catch (error: any) {
-        handleAPIError(error);
-      }
-    };
-
-    saveUser();
-  }, [user]);
-
-  // ------------------------
-  // Handle API Errors (Axios)
-  // ------------------------
-  const handleAPIError = (error: any) => {
-    if (error.response) {
-      const status = error.response.status;
-
-      if (status === 400) {
-        toast.warning(error.response.data.message || "Bad Request");
-      } else {
-        toast.error("Server error occurred.");
-      }
-    } else if (error.request) {
-      toast.error("No response from server.");
-    } else {
-      toast.error("Unexpected error.");
-    }
-  };
+  // ========================
+  // User already authenticated in handlers
+  // Token is generated immediately on login/Google auth
+  // ========================
 
   return (
     <div className="min-h-screen bg-white dark:bg-black flex justify-center items-center">

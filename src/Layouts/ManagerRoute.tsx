@@ -5,7 +5,7 @@ type ChildrenType = {
   children: ReactNode;
 };
 
-const AdminRoute = ({ children }: ChildrenType) => {
+const ManagerRoute = ({ children }: ChildrenType) => {
   const { role, isLoading } = useGetRole();
 
   if (isLoading) {
@@ -18,4 +18,4 @@ const AdminRoute = ({ children }: ChildrenType) => {
   return children;
 };
 
-export default AdminRoute;
+export default ManagerRoute;
