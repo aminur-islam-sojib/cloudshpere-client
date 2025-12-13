@@ -16,6 +16,7 @@ import DashboardHome from "@/Pages/Dashboard/DashboardHome";
 import ManagerRoute from "@/Layouts/ManagerRoute";
 import MyClubs from "@/Pages/Dashboard/MyGroups";
 import Clubs from "@/Pages/Clubs/Clubs";
+import ClubDetails from "@/Pages/Clubs/ClubDetails";
 
 export const router = createBrowserRouter([
   {
@@ -45,6 +46,10 @@ export const router = createBrowserRouter([
       {
         path: "clubs",
         element: <Clubs />,
+      },
+      {
+        path: "clubs/:id",
+        element: <ClubDetails />,
       },
     ],
   },
