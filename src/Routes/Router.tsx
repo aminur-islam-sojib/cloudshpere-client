@@ -17,6 +17,8 @@ import ManagerRoute from "@/Layouts/ManagerRoute";
 import MyClubs from "@/Pages/Dashboard/MyGroups";
 import Clubs from "@/Pages/Clubs/Clubs";
 import ClubDetails from "@/Pages/Clubs/ClubDetails";
+import PaymentSuccessPage from "@/Pages/Payment/PaymentSuccess";
+import PaymentCancelPage from "@/Pages/Payment/PaymentCancel";
 
 export const router = createBrowserRouter([
   {
@@ -108,6 +110,14 @@ export const router = createBrowserRouter([
             <MyClubs />
           </ManagerRoute>
         ),
+      },
+      {
+        path: "payment-success",
+        element: <PaymentSuccessPage />,
+      },
+      {
+        path: "payment-cancel",
+        element: <PaymentCancelPage />,
       },
     ],
   },

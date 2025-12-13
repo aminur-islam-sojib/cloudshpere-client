@@ -29,9 +29,11 @@ import {
   CreditCard,
   UserPlus,
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useNavigate, useParams } from "react-router";
 import axiosPublic from "@/Hooks/axiosPublic";
+import { axiosSecure } from "@/Hooks/useAxiosSecure";
+import { useAuth } from "@/Context/AuthContext";
 
 interface ClubData {
   _id: string;
@@ -48,6 +50,8 @@ interface ClubData {
 const ClubDetails = () => {
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const { id } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const { data, isLoading } = useQuery<ClubData>({
     queryKey: ["clubDetails", id],
@@ -57,13 +61,40 @@ const ClubDetails = () => {
     },
   });
 
+  const paymentInfo = {
+    clubName: data?.clubName,
+    clubId: data?._id,
+    email: data?.managerEmail,
+    description: data?.description,
+    cost: data?.membershipFee,
+  };
+
+  const { mutate } = useMutation({
+    mutationFn: async () => {
+      const res = await axiosSecure.post(
+        "/create-checkout-session",
+        paymentInfo
+      );
+      return res.data;
+    },
+    onSuccess: (data) => {
+      console.log(data);
+      window.location.href = data;
+    },
+    onError: (err) => {
+      console.log(err);
+    },
+  });
+
   const handleJoinButton = () => {
     setIsJoinModalOpen(true);
   };
 
   const handleConfirmJoin = () => {
-    console.log("Joining club:", data?._id);
-    // Add your join logic here
+    if (!user) {
+      return navigate("/log-in");
+    }
+    mutate();
     setIsJoinModalOpen(false);
   };
 
