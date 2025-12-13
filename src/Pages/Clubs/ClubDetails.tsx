@@ -1,6 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router";
-import axiosPublic from "@/Hooks/axiosPublic";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,13 +10,28 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   MapPin,
   Mail,
   Calendar,
   Users,
   DollarSign,
   Sparkles,
+  CreditCard,
+  UserPlus,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "react-router";
+import axiosPublic from "@/Hooks/axiosPublic";
 
 interface ClubData {
   _id: string;
@@ -33,7 +46,8 @@ interface ClubData {
 }
 
 const ClubDetails = () => {
-  const { id } = useParams<{ id: string }>();
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const { id } = useParams();
 
   const { data, isLoading } = useQuery<ClubData>({
     queryKey: ["clubDetails", id],
@@ -42,6 +56,16 @@ const ClubDetails = () => {
       return res.data;
     },
   });
+
+  const handleJoinButton = () => {
+    setIsJoinModalOpen(true);
+  };
+
+  const handleConfirmJoin = () => {
+    console.log("Joining club:", data?._id);
+    // Add your join logic here
+    setIsJoinModalOpen(false);
+  };
 
   if (isLoading) {
     return (
@@ -81,6 +105,8 @@ const ClubDetails = () => {
       day: "numeric",
     });
   };
+
+  const isFree = data.membershipFee === 0;
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 via-blue-50/20 to-purple-50/20 dark:from-gray-950 dark:via-blue-950/20 dark:to-purple-950/20">
@@ -200,7 +226,7 @@ const ClubDetails = () => {
                       Membership Fee
                     </p>
                     <p className="text-gray-600 dark:text-gray-400 text-lg font-bold">
-                      {data.membershipFee === 0 ? (
+                      {isFree ? (
                         <span className="text-green-600 dark:text-green-400">
                           Free
                         </span>
@@ -241,8 +267,9 @@ const ClubDetails = () => {
                 <Button
                   className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
                   size="lg"
+                  onClick={handleJoinButton}
                 >
-                  Join Club
+                  {isFree ? "Join Club" : "Join & Pay"}
                 </Button>
 
                 <Button
@@ -301,6 +328,114 @@ const ClubDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Join Modal */}
+      <AlertDialog open={isJoinModalOpen} onOpenChange={setIsJoinModalOpen}>
+        <AlertDialogContent className="sm:max-w-[500px] bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+              {isFree ? (
+                <>
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                    <UserPlus className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <span>Join {data.clubName}</span>
+                </>
+              ) : (
+                <>
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                    <CreditCard className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <span>Join & Pay for {data.clubName}</span>
+                </>
+              )}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600 dark:text-gray-400 text-base mt-2">
+              {isFree
+                ? "You're about to join this amazing club for free!"
+                : `This club requires a membership fee of $${data.membershipFee}.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="py-4">
+            <div className="bg-linear-to-br from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 rounded-xl p-6 border border-blue-100 dark:border-blue-900/50">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Club Name
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {data.clubName}
+                  </span>
+                </div>
+                <Separator className="dark:bg-gray-700" />
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Category
+                  </span>
+                  <Badge className="bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50">
+                    {data.category}
+                  </Badge>
+                </div>
+                <Separator className="dark:bg-gray-700" />
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Membership Fee
+                  </span>
+                  <span className="text-lg font-bold">
+                    {isFree ? (
+                      <span className="text-green-600 dark:text-green-400">
+                        Free
+                      </span>
+                    ) : (
+                      <span className="text-purple-600 dark:text-purple-400">
+                        ${data.membershipFee}
+                      </span>
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {!isFree && (
+              <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-lg">
+                <p className="text-sm text-amber-800 dark:text-amber-300 flex items-start gap-2">
+                  <span className="text-lg">💳</span>
+                  <span>
+                    You'll be redirected to the payment page after confirming.
+                  </span>
+                </p>
+              </div>
+            )}
+          </div>
+
+          <AlertDialogFooter className="gap-2 sm:gap-2">
+            <AlertDialogCancel className="border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-white">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmJoin}
+              className={
+                isFree
+                  ? "bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white flex items-center gap-2"
+                  : "bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white flex items-center gap-2"
+              }
+            >
+              {isFree ? (
+                <>
+                  <UserPlus className="w-4 h-4" />
+                  Join Now
+                </>
+              ) : (
+                <>
+                  <CreditCard className="w-4 h-4" />
+                  Proceed to Payment
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
