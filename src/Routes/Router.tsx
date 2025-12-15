@@ -21,6 +21,9 @@ import PaymentCancelPage from "@/Pages/Payment/PaymentCancel";
 import PaymentSuccessPage from "@/Pages/Payment/PaymentSuccessPage";
 import JoinedClub from "@/Pages/Dashboard/JoinedClub";
 import ClubInbox from "@/Pages/Clubs/ClubInbox";
+import Events from "@/Pages/Events/Events";
+import EventDetails from "@/Pages/Events/EventDetails";
+import CreateEvent from "@/Pages/Events/CreateEvent";
 
 export const router = createBrowserRouter([
   {
@@ -54,6 +57,22 @@ export const router = createBrowserRouter([
       {
         path: "clubs/:id",
         element: <ClubDetails />,
+      },
+      {
+        path: "events",
+        element: <Events />,
+      },
+      {
+        path: "events/:id",
+        element: <EventDetails />,
+      },
+      {
+        path: "create-event",
+        element: (
+          <ProtectedRoute>
+            <CreateEvent />
+          </ProtectedRoute>
+        ),
       },
     ],
   },

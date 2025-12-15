@@ -12,13 +12,14 @@ import {
   type UserCredential,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase.init";
+import axiosPublic from "@/Hooks/axiosPublic";
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 interface AuthContextType {
-  user: FirebaseUser | null;
+  user: (FirebaseUser & { role?: string; name?: string }) | null;
   loading: boolean;
   googleLogin: () => Promise<UserCredential>;
   createUser: (email: string, password: string) => Promise<UserCredential>;
@@ -29,7 +30,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [user, setUser] = useState<
+    (FirebaseUser & { role?: string; name?: string }) | null
+  >(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   // Create User
@@ -58,8 +61,34 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   useEffect(() => {
-    const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    const unSubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        try {
+          // Fetch user profile from backend
+          const token = localStorage.getItem("jwt_token");
+          if (token) {
+            const res = await axiosPublic.get("/api/users/me", {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            const userProfile = res.data;
+
+            // Merge Firebase user with database profile
+            const mergedUser = {
+              ...currentUser,
+              role: userProfile.role,
+              name: userProfile.name,
+            };
+            setUser(mergedUser);
+          } else {
+            setUser(currentUser);
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+          setUser(currentUser);
+        }
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 

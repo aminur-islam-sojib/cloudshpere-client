@@ -48,7 +48,7 @@ const UsersPage = () => {
     },
     onSuccess: () => {
       toast.success("Role updated successfully!");
-      queryClient.invalidateQueries(["users"]);
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
     onError: () => {
       toast.error("Failed to update role.");
@@ -61,7 +61,7 @@ const UsersPage = () => {
     },
     onSuccess: () => {
       toast.success("User Deleted Successfully");
-      queryClient.invalidateQueries(["users"]);
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     },
     onError: () => {
       toast.error("Failed to delete User");

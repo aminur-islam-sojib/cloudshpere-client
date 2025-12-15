@@ -20,7 +20,6 @@ const RequestedGroupPage = () => {
     data: groups,
     isLoading,
     isError,
-    refetch,
   } = useQuery({
     queryKey: ["pending-groups", user?.email],
     queryFn: async () => {
@@ -38,7 +37,7 @@ const RequestedGroupPage = () => {
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["pending-groups"]);
+      queryClient.invalidateQueries({ queryKey: ["pending-groups"] });
       setActionLoading(null);
     },
     onError: () => setActionLoading(null),
@@ -50,7 +49,7 @@ const RequestedGroupPage = () => {
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["pending-groups"]);
+      queryClient.invalidateQueries({ queryKey: ["pending-groups"] });
       setActionLoading(null);
     },
     onError: () => setActionLoading(null),

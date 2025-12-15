@@ -3,6 +3,7 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { Upload, X, Loader2 } from "lucide-react";
 import { axiosSecure } from "@/Hooks/useAxiosSecure";
 import { useAuth } from "@/Context/AuthContext";
+import { toast } from "sonner";
 
 const categories = [
   "Photography",
@@ -49,7 +50,7 @@ export default function ClubForm() {
     register,
     handleSubmit,
     formState: { errors },
-    // reset,
+    reset,
     setValue,
     watch,
   } = useForm<ClubFormData>({
@@ -168,8 +169,8 @@ export default function ClubForm() {
       console.log(error);
     }
     // All fields including bannerImage URL are in the data object
-    alert("Club registration submitted successfully!");
-    // reset();
+    toast.success("Club registration submitted successfully!");
+    reset();
     setImagePreview("");
   };
 

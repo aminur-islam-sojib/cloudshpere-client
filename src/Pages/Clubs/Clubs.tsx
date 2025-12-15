@@ -18,16 +18,25 @@ type Club = {
   membershipFee?: number;
 };
 
+type ClubsResponse = {
+  clubs: Club[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
 const DEFAULT_IMAGE = "/unsupportedImg.jpeg";
 
 const Clubs: React.FC = () => {
-  const { data: clubs = [] } = useQuery({
+  const { data: clubsData = { clubs: [] } } = useQuery<ClubsResponse>({
     queryKey: ["Clubs"],
     queryFn: async () => {
       const res = await axiosPublic.get("/api/clubs");
-      return res.data as Club[];
+      return res.data;
     },
   });
+  const clubs = clubsData.clubs || [];
   const navigate = useNavigate();
   const handleDetailsButton = (id: string) => {
     navigate(`/clubs/${id}`);

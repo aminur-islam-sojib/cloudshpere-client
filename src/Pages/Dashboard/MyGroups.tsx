@@ -29,7 +29,7 @@ const ManagerDashboard = () => {
     queryKey: ["manager-clubs", user?.email, searchText, statusFilter],
     queryFn: async () => {
       const res = await axiosSecure.get(
-        `/clubs/${user?.email}?search=${searchText}&status=${statusFilter}`
+        `/api/clubs/${user?.email}?search=${searchText}&status=${statusFilter}`
       );
       return res.data;
     },
