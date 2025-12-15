@@ -17,6 +17,7 @@ import { useAuth } from "@/Context/AuthContext";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
 import useGetRole from "@/Hooks/useGetRole";
+import { Button } from "@/components/ui/button";
 import UserProfileDropdown from "@/components/Shared/Navbar/UserDropDown";
 // import UserProfileDropdown from "@/components/Shared/Navbar/UserDropDown";
 
@@ -153,7 +154,7 @@ const DashboardLayout = () => {
             const Icon = item.icon;
             const active = isActive(item.path);
             return (
-              <button
+              <Button
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
@@ -161,25 +162,27 @@ const DashboardLayout = () => {
                     ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/50"
                     : "text-slate-300 hover:bg-slate-800 hover:text-white"
                 }`}
+                variant="ghost"
               >
                 <Icon className="w-5 h-5 shrink-0" />
                 {sidebarOpen && (
                   <span className="text-sm font-medium">{item.label}</span>
                 )}
-              </button>
+              </Button>
             );
           })}
         </nav>
 
         {/* User Profile & Logout */}
         <div className="p-4 border-t border-slate-800">
-          <button
+          <Button
             onClick={handleLogOut}
             className="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-red-600/20 hover:text-red-400 rounded-lg transition-all"
+            variant="ghost"
           >
             <LogOut className="w-5 h-5 shrink-0" />
             {sidebarOpen && <span className="text-sm font-medium">Logout</span>}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -188,16 +191,17 @@ const DashboardLayout = () => {
         {/* Header */}
         <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 sticky top-0 z-40">
           <div className="flex items-center gap-4">
-            <button
+            <Button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              variant="ghost"
             >
               {sidebarOpen ? (
                 <X className="w-5 h-5 text-slate-600 dark:text-slate-400" />
               ) : (
                 <Menu className="w-5 h-5 text-slate-600 dark:text-slate-400" />
               )}
-            </button>
+            </Button>
 
             {/* Search Bar */}
             <div className="hidden md:flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-lg">

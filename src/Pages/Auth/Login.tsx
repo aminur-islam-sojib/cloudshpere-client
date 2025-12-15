@@ -12,6 +12,7 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { useAuth } from "@/Context/AuthContext";
 import axiosPublic from "@/Hooks/axiosPublic";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const GoogleIcon: React.FC = () => (
   <svg
@@ -191,24 +192,27 @@ const Login: React.FC = () => {
                   placeholder="Enter your password"
                   className="w-full pl-10 pr-12 py-3 border rounded-lg bg-white dark:bg-black"
                 />
-                <button
+                <Button
                   type="button"
                   onClick={togglePasswordVisibility}
                   className="absolute right-3 top-3 text-gray-500"
+                  variant="ghost"
+                  size="sm"
                 >
                   {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-                </button>
+                </Button>
               </div>
             </div>
 
             {/* Submit */}
-            <button
+            <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-linear-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition"
+              className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+              size="lg"
             >
               {isLoading ? "Processing..." : "Sign In"}
-            </button>
+            </Button>
           </form>
 
           {/* Divider */}
@@ -219,14 +223,15 @@ const Login: React.FC = () => {
           </div>
 
           {/* Google Login */}
-          <button
+          <Button
             onClick={handleGoogleLogin}
             disabled={isLoading}
-            className="w-full flex items-center justify-center border py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+            className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+            size="lg"
           >
             <GoogleIcon />
             <span className="ml-3">Continue with Google</span>
-          </button>
+          </Button>
 
           {/* Register Link */}
           <div className="text-center">
