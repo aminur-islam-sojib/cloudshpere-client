@@ -28,9 +28,10 @@ import {
   Sparkles,
   CreditCard,
   UserPlus,
+  User2,
 } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import axiosPublic from "@/Hooks/axiosPublic";
 import { axiosSecure } from "@/Hooks/useAxiosSecure";
 import { useAuth } from "@/Context/AuthContext";
@@ -54,9 +55,27 @@ const ClubDetails = () => {
   const navigate = useNavigate();
 
   const { data, isLoading } = useQuery<ClubData>({
-    queryKey: ["clubDetails", id],
+    queryKey: ["club-details", id],
+    enabled: !!id,
     queryFn: async () => {
       const res = await axiosPublic.get<ClubData>(`/api/club-details/${id}`);
+      return res.data;
+    },
+  });
+  const { data: clubUsers = [] } = useQuery({
+    queryKey: ["club-users", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const res = await axiosPublic.get(`/api/payment-users/${id}`);
+      return res.data;
+    },
+  });
+
+  const { data: VerifiedUser } = useQuery({
+    queryKey: ["verified-user", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/payment-user/${id}`);
       return res.data;
     },
   });
@@ -267,6 +286,22 @@ const ClubDetails = () => {
                     </p>
                   </div>
                 </div>
+
+                <Separator className="dark:bg-gray-800" />
+
+                <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                    <User2 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-gray-900 dark:text-white mb-1">
+                      Users
+                    </p>
+                    <p className="text-gray-600 dark:text-gray-400 text-lg font-bold">
+                      {clubUsers?.totalUsers}
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -295,13 +330,26 @@ const ClubDetails = () => {
                   </p>
                 </div>
 
-                <Button
-                  className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-                  size="lg"
-                  onClick={handleJoinButton}
-                >
-                  {isFree ? "Join Club" : "Join & Pay"}
-                </Button>
+                <div>
+                  {VerifiedUser ? (
+                    <Link to={`/dashboard/club-inbox/${id}`}>
+                      <Button
+                        className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                        size="lg"
+                      >
+                        Open
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button
+                      className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                      size="lg"
+                      onClick={handleJoinButton}
+                    >
+                      {isFree ? "Join Club" : "Join & Pay"}
+                    </Button>
+                  )}
+                </div>
 
                 <Button
                   variant="outline"

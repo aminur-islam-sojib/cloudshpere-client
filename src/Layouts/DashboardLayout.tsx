@@ -75,6 +75,12 @@ const DashboardLayout = () => {
       path: "/dashboard/my-clubs",
       roles: ["manager"],
     },
+    {
+      icon: BarChart2,
+      label: "Joined Clubs",
+      path: "/dashboard/accessed-club",
+      roles: ["admin", "manager", "member"],
+    },
   ];
 
   // Filter navigation items based on user role using useMemo for performance

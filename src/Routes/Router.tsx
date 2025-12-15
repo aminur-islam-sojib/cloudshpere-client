@@ -17,8 +17,10 @@ import ManagerRoute from "@/Layouts/ManagerRoute";
 import MyClubs from "@/Pages/Dashboard/MyGroups";
 import Clubs from "@/Pages/Clubs/Clubs";
 import ClubDetails from "@/Pages/Clubs/ClubDetails";
-import PaymentSuccessPage from "@/Pages/Payment/PaymentSuccess";
 import PaymentCancelPage from "@/Pages/Payment/PaymentCancel";
+import PaymentSuccessPage from "@/Pages/Payment/PaymentSuccessPage";
+import JoinedClub from "@/Pages/Dashboard/JoinedClub";
+import ClubInbox from "@/Pages/Clubs/ClubInbox";
 
 export const router = createBrowserRouter([
   {
@@ -118,6 +120,14 @@ export const router = createBrowserRouter([
       {
         path: "payment-cancel",
         element: <PaymentCancelPage />,
+      },
+      {
+        path: "accessed-club",
+        element: <JoinedClub />,
+      },
+      {
+        path: "club-inbox/:id",
+        element: <ClubInbox />,
       },
     ],
   },
