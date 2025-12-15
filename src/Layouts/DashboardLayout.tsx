@@ -8,18 +8,16 @@ import {
   BarChart3,
   Menu,
   X,
-  Bell,
   Search,
-  ChevronDown,
   LogOut,
   Calendar,
-  UserCircle,
   BarChart2,
 } from "lucide-react";
 import { useAuth } from "@/Context/AuthContext";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
 import useGetRole from "@/Hooks/useGetRole";
+import UserProfileDropdown from "@/components/Shared/Navbar/UserDropDown";
 // import UserProfileDropdown from "@/components/Shared/Navbar/UserDropDown";
 
 // Define navigation item type
@@ -34,8 +32,8 @@ const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logOut } = useAuth();
-  const { role, isLoading: roleLoading } = useGetRole(); // Assuming useGetRole returns {role, loading}
+  const { logOut } = useAuth();
+  const { role, isLoading: roleLoading } = useGetRole();
 
   // Define all possible navigation items with role restrictions
   const allNavItems: NavItem[] = [
@@ -214,36 +212,7 @@ const DashboardLayout = () => {
 
           {/* Header Right */}
           <div className="flex items-center gap-4">
-            {/* Notifications */}
-            <button className="relative p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
-              <Bell className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-600 rounded-full"></span>
-            </button>
-
-            {/* User Menu */}
-            <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800">
-              <div className="hidden sm:block text-right">
-                <p className="text-sm font-medium text-slate-900 dark:text-white">
-                  {user?.displayName || "User"}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">
-                  {role || "Loading..."}
-                </p>
-              </div>
-              <div className="w-10 h-10 bg-linear-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center overflow-hidden">
-                {user?.photoURL ? (
-                  <img
-                    src={user.photoURL}
-                    alt={user?.displayName || "User"}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <UserCircle className="w-6 h-6 text-white" />
-                )}
-              </div>
-              {/* <UserProfileDropdown /> */}
-              <ChevronDown className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-            </div>
+            <UserProfileDropdown />
           </div>
         </header>
 

@@ -1,11 +1,20 @@
 "use client";
 import { useAuth } from "@/Context/AuthContext";
-import { CreditCard, HelpCircle, LogOut, Settings, User } from "lucide-react";
+import {
+  ChevronDown,
+  CreditCard,
+  HelpCircle,
+  LogOut,
+  Settings,
+  User,
+  UserCircle,
+} from "lucide-react";
 import React, { useState, useEffect, useRef, type ReactNode } from "react";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
 import ThemeToggle from "../ThemeToggle/ThemeToggle";
 import { useNavigate } from "react-router";
+import useGetRole from "@/Hooks/useGetRole";
 
 interface DropdownMenuProps {
   children: ReactNode;
@@ -80,6 +89,10 @@ const DropdownMenuSeparator = () => (
 export default function UserProfileDropdown() {
   const { logOut, user } = useAuth();
   const navigate = useNavigate();
+  const { role } = useGetRole();
+  const [imgError, setImgError] = useState(false);
+
+  const firstLetter = user?.displayName?.trim().charAt(0).toUpperCase() || "U";
 
   const handleSignOut = async () => {
     Swal.fire({
@@ -99,28 +112,47 @@ export default function UserProfileDropdown() {
   };
 
   return (
-    <div className="flex items-center justify-center font-sans py-5">
+    <div className="flex items-center justify-center font-sans py-5 px-5">
       <DropdownMenu
         trigger={
-          <button className="flex items-center space-x-3 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-            <div className="w-8 h-8 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-              <img src={user?.photoURL || null || undefined} alt="" />
+          <div className="flex items-center gap-3 pl-4  border-slate-200 dark:border-slate-800">
+            <div className="hidden sm:block text-right">
+              <p className="text-sm font-medium text-slate-900 dark:text-white">
+                {user?.displayName || "User"}
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">
+                {role || "Loading..."}
+              </p>
             </div>
-            <div className="text-left">
-              <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                {user?.displayName}
-              </div>
-              <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                {user?.email}
-              </div>
+            <div className="w-10 h-10 bg-linear-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center overflow-hidden">
+              {user?.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt={user?.displayName || "User"}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <UserCircle className="w-6 h-6 text-white" />
+              )}
             </div>
-          </button>
+            {/* <UserProfileDropdown /> */}
+            <ChevronDown className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+          </div>
         }
       >
         <div className="px-3 py-3 border-b border-zinc-200 dark:border-zinc-700">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-              <img src={user?.photoURL || null || undefined} alt="" />
+            <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex  items-center justify-center text-white font-semibold overflow-hidden">
+              {!imgError && user?.photoURL ? (
+                <img
+                  src={user.photoURL}
+                  alt={user.displayName || "User"}
+                  className="w-full h-full object-cover"
+                  onError={() => setImgError(true)}
+                />
+              ) : (
+                <span className="text-sm font-bold">{firstLetter}</span>
+              )}
             </div>
             <div>
               <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
@@ -129,8 +161,8 @@ export default function UserProfileDropdown() {
               <div className="text-xs text-zinc-500 dark:text-zinc-400">
                 {user?.email}
               </div>
-              <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                Pro Plan
+              <div className="text-xs text-blue-600 dark:text-blue-400 font-medium capitalize">
+                {role || "Loading..."}
               </div>
             </div>
           </div>
