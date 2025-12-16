@@ -4,7 +4,7 @@ import { axiosSecure } from "@/Hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
-import { Search, CheckCircle, Clock, XCircle, Info } from "lucide-react";
+import { Search, CheckCircle, Clock, XCircle, Info, Pen } from "lucide-react";
 
 import {
   Table,
@@ -18,6 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router";
 
 const ManagerDashboard = () => {
   const { user } = useAuth();
@@ -108,7 +109,7 @@ const ManagerDashboard = () => {
                 <TableHead>Location</TableHead>
                 <TableHead>Fee</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className=" text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -133,9 +134,15 @@ const ManagerDashboard = () => {
                     <StatusBadge status={club.status} />
                   </TableCell>
 
-                  <TableCell className="text-right">
+                  <TableCell className="flex justify-center gap-2">
+                    <Link to={`/clubs/${club._id}`}>
+                      <Button size="sm" variant="outline">
+                        <Info className="h-4 w-4 mr-1" /> Details
+                      </Button>
+                    </Link>
+
                     <Button size="sm" variant="outline">
-                      <Info className="h-4 w-4 mr-1" /> Details
+                      <Pen className="h-4 w-4 mr-1" /> Edit
                     </Button>
                   </TableCell>
                 </TableRow>
