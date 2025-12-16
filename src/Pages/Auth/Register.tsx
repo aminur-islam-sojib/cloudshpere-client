@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AtSignIcon,
@@ -46,6 +46,9 @@ const Register: React.FC = () => {
   const { googleLogin, createUser, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const [avatarPreview, setAvatarPreview] = useState<string>("");
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const [uploading, setUploading] = useState(false);
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
@@ -122,7 +125,7 @@ const Register: React.FC = () => {
         const tokenRes = await axiosPublic.post("/api/auth/jwt", {
           email: userRes.user.email,
           name: userRes.user.displayName || "User",
-          photoURL: userRes.user.photoURL || "",
+          photoURL: avatarUrl || userRes.user.photoURL || "",
         });
         const token = tokenRes.data.token;
         localStorage.setItem("jwt_token", token);
@@ -138,8 +141,57 @@ const Register: React.FC = () => {
   };
 
   // =====================================================
-  // WHEN GOOGLE LOGIN SUCCESS → TOKEN ALREADY GENERATED IN HANDLER
+  // IMAGE BB PHOTO UPLOAD
   // =====================================================
+  const uploadAvatarToImageBB = async (file: File): Promise<string | null> => {
+    try {
+      setUploading(true);
+      const apiKey = import.meta.env.VITE_IMG_BB;
+      if (!apiKey) throw new Error("ImageBB key missing");
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      return data?.data?.url || null;
+    } catch (err) {
+      toast.error("Image upload failed");
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.warning("Only image files allowed");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.warning("Image must be under 5MB");
+      return;
+    }
+
+    // Preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    // Upload
+    const url = await uploadAvatarToImageBB(file);
+    if (url) setAvatarUrl(url);
+  };
 
   return (
     <div className="min-h-screen bg-white dark:bg-black flex justify-center items-center">
@@ -160,6 +212,35 @@ const Register: React.FC = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit(onsubmit)} className="space-y-6">
+            {/* Avatar Upload */}
+            <div className="flex justify-center">
+              <label className="relative cursor-pointer group">
+                <div className="w-24 h-24 rounded-full border-2 border-dashed flex items-center justify-center overflow-hidden bg-gray-100 dark:bg-gray-800">
+                  {avatarPreview ? (
+                    <img
+                      src={avatarPreview}
+                      alt="Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User2 className="text-gray-400" size={40} />
+                  )}
+                </div>
+
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-sm transition">
+                  {uploading ? "Uploading..." : "Upload"}
+                </div>
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
             {/* Name */}
             <div>
               <label className="block text-sm mb-2">Name</label>
