@@ -1,11 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import axiosPublic from "@/Hooks/axiosPublic";
-import { MapPin, CalendarDays, ArrowRight, Users } from "lucide-react";
+import { MapPin, CalendarDays, ArrowRight, Users, Search } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 
+// ---------------- TYPES ----------------
 type Club = {
   _id: string;
   bannerImage?: string;
@@ -21,112 +30,159 @@ type Club = {
 type ClubsResponse = {
   clubs: Club[];
   total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
 };
 
 const DEFAULT_IMAGE = "/unsupportedImg.jpeg";
 
+const CATEGORIES = [
+  "All",
+  "Photography",
+  "Sports",
+  "Tech",
+  "Art",
+  "Music",
+  "Dance",
+  "Literature",
+  "Science",
+  "Business",
+  "Social Service",
+];
+
+// ---------------- COMPONENT ----------------
 const Clubs: React.FC = () => {
-  const { data: clubsData = { clubs: [] } } = useQuery<ClubsResponse>({
-    queryKey: ["Clubs"],
+  const navigate = useNavigate();
+
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+
+  const { data, isLoading } = useQuery<ClubsResponse>({
+    queryKey: ["clubs", search, category],
     queryFn: async () => {
-      const res = await axiosPublic.get("/api/clubs");
+      const res = await axiosPublic.get("/api/clubs", {
+        params: {
+          search,
+          category: category === "All" ? undefined : category,
+        },
+      });
       return res.data;
     },
   });
-  const clubs = clubsData.clubs || [];
-  const navigate = useNavigate();
-  const handleDetailsButton = (id: string) => {
-    navigate(`/clubs/${id}`);
-  };
+
+  const clubs = data?.clubs || [];
 
   return (
-    <div className="max-w-6xl mx-auto p-4 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {clubs.map((club: Club) => (
-        <Card
-          key={club._id}
-          className="group shadow-lg hover:shadow-2xl transition-transform rounded-2xl overflow-hidden border border-gray-100 bg-white hover:-translate-y-1"
-        >
-          <div className="relative h-44 w-full bg-gray-50">
-            <img
-              src={club.bannerImage || DEFAULT_IMAGE}
-              onError={(e) => {
-                const target = e.currentTarget as HTMLImageElement;
-                if (target.src !== DEFAULT_IMAGE) target.src = DEFAULT_IMAGE;
-              }}
-              alt={club.clubName || "Club banner"}
-              className="h-full w-full object-cover"
-            />
-            <div className="absolute left-4 top-4 px-3 py-1 rounded-full bg-white/80 backdrop-blur text-xs font-medium">
-              {club.category || "General"}
-            </div>
-          </div>
+    <div className="max-w-6xl mx-auto p-4">
+      {/* -------- FILTER BAR -------- */}
+      <div className="mb-6 flex flex-col md:flex-row gap-4 items-center">
+        <div className="relative w-full md:w-2/3">
+          <Search
+            size={18}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+          <Input
+            placeholder="Search clubs..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10 rounded-xl"
+          />
+        </div>
 
-          <CardHeader className="pt-4 pb-0">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <CardTitle className="text-lg font-semibold leading-tight">
-                  {club.clubName}
-                </CardTitle>
-                <p className="mt-1 text-sm text-gray-500 line-clamp-2">
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger className="w-full md:w-1/3 rounded-xl">
+            <SelectValue placeholder="Select category" />
+          </SelectTrigger>
+          <SelectContent>
+            {CATEGORIES.map((cat) => (
+              <SelectItem key={cat} value={cat}>
+                {cat}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* -------- STATES -------- */}
+      {isLoading && (
+        <p className="text-center text-gray-500 py-20">Loading clubs...</p>
+      )}
+
+      {!isLoading && clubs.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500">
+          <p className="text-lg font-medium">No clubs found</p>
+          <p className="text-sm mt-1">
+            Try changing the category or search keyword
+          </p>
+        </div>
+      )}
+
+      {!isLoading && clubs.length > 0 && (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {clubs.map((club) => (
+            <Card
+              key={club._id}
+              className="group shadow-lg hover:shadow-2xl transition rounded-2xl overflow-hidden"
+            >
+              {/* IMAGE */}
+              <div className="relative h-44 w-full bg-gray-50">
+                <img
+                  src={club.bannerImage || DEFAULT_IMAGE}
+                  onError={(e) => {
+                    const img = e.currentTarget;
+                    if (img.src !== DEFAULT_IMAGE) img.src = DEFAULT_IMAGE;
+                  }}
+                  alt={club.clubName}
+                  className="h-full w-full object-cover"
+                />
+                <span className="absolute top-4 left-4 bg-white/80 backdrop-blur px-3 py-1 rounded-full text-xs font-medium">
+                  {club.category || "General"}
+                </span>
+              </div>
+
+              {/* CONTENT */}
+              <CardHeader className="pb-0">
+                <CardTitle className="text-lg">{club.clubName}</CardTitle>
+                <p className="text-sm text-gray-500 line-clamp-2">
                   {club.description}
                 </p>
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-gray-400">Since</div>
-                <div className="text-sm font-medium">
-                  {club.createdAt
-                    ? new Date(club.createdAt).toLocaleDateString()
-                    : "—"}
+              </CardHeader>
+
+              <CardContent>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <div className="flex gap-2 items-center">
+                    <MapPin size={16} />
+                    {club.location || "Location not set"}
+                  </div>
+
+                  <div className="flex gap-2 items-center">
+                    <Users size={16} />
+                    {club.managerEmail || "—"}
+                  </div>
+
+                  <div className="flex gap-2 items-center">
+                    <CalendarDays size={16} />
+                    Fee: ${club.membershipFee ?? 0}
+                  </div>
                 </div>
-              </div>
-            </div>
-          </CardHeader>
 
-          <CardContent className="pt-2 pb-4">
-            <div className="flex flex-col gap-3 text-sm text-gray-600">
-              <div className="flex items-center gap-2">
-                <MapPin size={16} />
-                <span className="truncate">
-                  {club.location || "Location not set"}
-                </span>
-              </div>
+                <div className="mt-4 flex gap-3">
+                  <Link to={`/clubs/${club._id}`} className="w-1/2">
+                    <Button variant="outline" className="w-full rounded-xl">
+                      Details <ArrowRight size={16} />
+                    </Button>
+                  </Link>
 
-              <div className="flex items-center gap-2">
-                <Users size={16} />
-                <span className="truncate">
-                  Manager: {club.managerEmail || "—"}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <CalendarDays size={16} />
-                <span>Fee: ${club.membershipFee ?? 0}</span>
-              </div>
-            </div>
-
-            <div className="mt-4 flex items-center justify-between gap-3">
-              <Link to={`/clubs/${club._id}`} className="w-1/2">
-                <Button
-                  variant="outline"
-                  className="w-full rounded-xl flex items-center justify-center gap-2"
-                >
-                  Details <ArrowRight size={16} />
-                </Button>
-              </Link>
-
-              <Button
-                onClick={() => handleDetailsButton(club._id)}
-                className="w-1/2 rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 hover:scale-[1.02]"
-              >
-                Join Club
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+                  <Button
+                    onClick={() => navigate(`/clubs/${club._id}`)}
+                    className="w-1/2 rounded-xl bg-linear-to-r from-blue-600 to-indigo-600"
+                  >
+                    Join Club
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
