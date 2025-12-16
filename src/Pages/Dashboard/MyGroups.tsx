@@ -19,12 +19,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router";
+import Modal from "@/components/ui/modal";
+import EditClubModalContent from "../Clubs/EditClubModalContent";
 
 const ManagerDashboard = () => {
   const { user } = useAuth();
 
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedClubId, setSelectedClubId] = useState<string | null>(null);
 
   const { data: clubs = [], isLoading } = useQuery({
     queryKey: ["manager-clubs", user?.email, searchText, statusFilter],
@@ -116,7 +120,6 @@ const ManagerDashboard = () => {
             <TableBody>
               {clubs.map((club: any) => (
                 <TableRow key={club._id}>
-                  {/* Image */}
                   <TableCell>
                     <img
                       src={club.bannerImage}
@@ -141,9 +144,20 @@ const ManagerDashboard = () => {
                       </Button>
                     </Link>
 
-                    <Button size="sm" variant="outline">
-                      <Pen className="h-4 w-4 mr-1" /> Edit
-                    </Button>
+                    <div>
+                      <div className="space-y-4">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedClubId(club._id);
+                            setIsOpen(true);
+                          }}
+                        >
+                          <Pen className="h-4 w-4 mr-1" /> Edit
+                        </Button>
+                      </div>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -157,6 +171,21 @@ const ManagerDashboard = () => {
           )}
         </CardContent>
       </Card>
+      {selectedClubId && (
+        <Modal
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          title="Edit Club"
+          size="lg"
+        >
+          <div>
+            <EditClubModalContent
+              clubId={selectedClubId}
+              setIsOpen={setIsOpen}
+            />
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };
