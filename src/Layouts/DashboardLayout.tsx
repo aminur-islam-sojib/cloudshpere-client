@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useMemo } from "react";
-import { Outlet, useNavigate, useLocation } from "react-router";
+import { Outlet, useNavigate, useLocation, Link } from "react-router";
 import {
   LayoutDashboard,
   Users,
@@ -138,14 +138,14 @@ const DashboardLayout = () => {
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-center border-b border-slate-800">
-          <div className="flex items-center gap-3">
+          <Link to={"/"} className="flex items-center gap-3">
             <div className="w-8 h-8 bg-linear-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center">
               <LayoutDashboard className="w-5 h-5" />
             </div>
             {sidebarOpen && (
               <span className="font-bold text-lg">ClubSphere</span>
             )}
-          </div>
+          </Link>
         </div>
 
         {/* Navigation Items */}
@@ -157,7 +157,7 @@ const DashboardLayout = () => {
               <Button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                className={`w-full flex justify-self-start  gap-3 px-4 py-3 rounded-lg transition-all ${
                   active
                     ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/50"
                     : "text-slate-300 hover:bg-slate-800 hover:text-white"
