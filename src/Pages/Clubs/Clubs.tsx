@@ -12,7 +12,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import axiosPublic from "@/Hooks/axiosPublic";
 import { MapPin, CalendarDays, ArrowRight, Users, Search } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 // ---------------- TYPES ----------------
 type Club = {
@@ -165,15 +165,17 @@ const Clubs: React.FC = () => {
                 </div>
 
                 <div className="mt-4 flex gap-3">
-                  <Link to={`/clubs/${club._id}`} className="w-1/2">
-                    <Button variant="outline" className="w-full rounded-xl">
-                      Details <ArrowRight size={16} />
-                    </Button>
-                  </Link>
+                  <Button
+                    onClick={() => navigate(`/clubs/${club._id}`)}
+                    className=" flex-1"
+                    variant="outline"
+                  >
+                    Details <ArrowRight size={16} />
+                  </Button>
 
                   <Button
                     onClick={() => navigate(`/clubs/${club._id}`)}
-                    className="w-1/2 rounded-xl bg-linear-to-r from-blue-600 to-indigo-600"
+                    className="flex-1 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
                   >
                     Join Club
                   </Button>

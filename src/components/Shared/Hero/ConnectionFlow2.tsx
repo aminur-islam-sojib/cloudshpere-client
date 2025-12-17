@@ -40,7 +40,7 @@ export default function Hero() {
             <div>
               <button
                 onClick={handleGetStarted}
-                className="px-10 py-5 bg-linear-to-r from-purple-600 to-blue-600 text-white text-lg rounded-full font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center space-x-3"
+                className="px-10 py-5 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 text-lg rounded-full font-semibold flex items-center space-x-3 hover:scale-105"
               >
                 <span>Get Started Free</span>
                 <ArrowRight className="w-6 h-6" />

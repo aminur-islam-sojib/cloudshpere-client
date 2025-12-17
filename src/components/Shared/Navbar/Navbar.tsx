@@ -31,7 +31,7 @@ const Navbar = () => {
           {/* Hamburger Menu */}
           <button
             onClick={() => setOpen(!open)}
-            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+            className="p-2 rounded-md bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
           >
             {open ? (
               <X className="h-7 w-7 text-gray-700 dark:text-gray-200" />

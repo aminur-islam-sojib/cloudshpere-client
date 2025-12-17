@@ -18,6 +18,7 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from "firebase/auth";
+import { Button } from "@/components/ui/button";
 
 type UserData = {
   name: string;
@@ -164,9 +165,9 @@ const SettingsPage = () => {
                 </div>
               </div>
 
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg">
+              <Button className=" bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                 Save Changes
-              </button>
+              </Button>
             </CardContent>
           </form>
         </Card>
@@ -253,9 +254,9 @@ const SettingsPage = () => {
                 </div>
               </div>
 
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg">
+              <Button className=" bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                 Change Password
-              </button>
+              </Button>
             </CardContent>
           </form>
         </Card>
@@ -280,9 +281,9 @@ const SettingsPage = () => {
                 <option value="auto">Auto</option>
               </select>
 
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg">
+              <Button className=" bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                 Save Theme
-              </button>
+              </Button>
             </CardContent>
           </form>
         </Card>

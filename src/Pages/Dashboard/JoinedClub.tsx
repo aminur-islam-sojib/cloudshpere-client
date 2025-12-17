@@ -171,7 +171,7 @@ const JoinedClub = () => {
                   {membership.paymentId ? (
                     <button
                       onClick={() => copyToClipboard(membership.paymentId!)}
-                      className="group relative inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors cursor-pointer border border-gray-300"
+                      className="group relative inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
                     >
                       <code className="text-xs font-mono text-gray-800">
                         {membership.paymentId}

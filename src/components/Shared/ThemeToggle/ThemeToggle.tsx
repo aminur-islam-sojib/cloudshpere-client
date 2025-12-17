@@ -95,7 +95,7 @@ export default function ThemeToggle() {
           aria-pressed={theme === "dark"}
           title="Toggle theme"
           onClick={toggleTheme}
-          className="relative inline-flex items-center justify-center p-[1.5px] bg-gray-300 dark:bg-black rounded-full overflow-hidden group cursor-pointer"
+          className="relative inline-flex items-center justify-center p-[1.5px] rounded-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer"
         >
           <div
             className="absolute inset-0"

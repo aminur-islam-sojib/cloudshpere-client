@@ -25,11 +25,13 @@ import Events from "@/Pages/Events/Events";
 import EventDetails from "@/Pages/Events/EventDetails";
 import CreateEvent from "@/Pages/Events/CreateEvent";
 import AllEvents from "@/Pages/Events/AllEvents";
+import NotFoundPage from "@/Pages/ErrorPage/NotFound";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
+    errorElement: <NotFoundPage />,
     children: [
       {
         index: true,

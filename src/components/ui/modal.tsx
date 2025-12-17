@@ -229,10 +229,7 @@ const Modal: React.FC<ModalProps> = ({
                 <button
                   onClick={onClose}
                   className={cn(
-                    "p-1 rounded-md transition-colors",
-                    "text-gray-400 hover:text-gray-600",
-                    "dark:text-gray-400 dark:hover:text-gray-200",
-                    "hover:bg-gray-100 dark:hover:bg-gray-800"
+                    "p-1 rounded-md bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
                   )}
                 >
                   <svg
