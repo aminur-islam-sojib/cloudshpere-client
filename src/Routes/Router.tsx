@@ -24,6 +24,7 @@ import ClubInbox from "@/Pages/Clubs/ClubInbox";
 import Events from "@/Pages/Events/Events";
 import EventDetails from "@/Pages/Events/EventDetails";
 import CreateEvent from "@/Pages/Events/CreateEvent";
+import AllEvents from "@/Pages/Events/AllEvents";
 
 export const router = createBrowserRouter([
   {
@@ -151,6 +152,14 @@ export const router = createBrowserRouter([
       {
         path: "club-event-manager/:id",
         element: <Events />,
+      },
+      {
+        path: "manager/events",
+        element: <AllEvents></AllEvents>,
+      },
+      {
+        path: "event-details/:id",
+        element: <EventDetails />,
       },
     ],
   },

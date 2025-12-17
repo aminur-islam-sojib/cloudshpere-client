@@ -59,7 +59,7 @@ const EventDetails = () => {
     queryKey: ["event-details", id],
     enabled: !!id,
     queryFn: async () => {
-      const res = await axiosPublic.get<EventData>(`/api/events/${id}`);
+      const res = await axiosPublic.get(`/api/events/${id}`);
       return res.data;
     },
   });

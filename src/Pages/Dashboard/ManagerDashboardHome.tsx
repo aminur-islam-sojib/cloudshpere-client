@@ -39,7 +39,7 @@ const ManagerDasHome = () => {
   const { data: clubs = [] } = useQuery({
     queryKey: ["manager-clubs", user?.email],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/api/clubs/${user?.email}`);
+      const res = await axiosSecure.get(`/clubs/${user?.email}`);
       return res.data;
     },
   });

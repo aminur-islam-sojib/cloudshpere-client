@@ -45,7 +45,7 @@ const AdminDasHome = () => {
   const { data: users = [] } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const res = await axiosSecure.get("/api/users");
+      const res = await axiosSecure.get("/users");
       return res.data;
     },
   });
@@ -53,7 +53,7 @@ const AdminDasHome = () => {
   const { data: clubsData = { clubs: [] } } = useQuery<ClubsResponse>({
     queryKey: ["clubs"],
     queryFn: async () => {
-      const res = await axiosSecure.get("/api/clubs");
+      const res = await axiosSecure.get("/clubs");
       return res.data;
     },
   });

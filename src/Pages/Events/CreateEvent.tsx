@@ -60,6 +60,7 @@ const CreateEvent = () => {
 
   /* ================= Submit ================= */
   const onSubmit = async (data: EventFormData) => {
+    console.log(data);
     if (!eventDate) {
       toast.error("Please select event date");
       return;
