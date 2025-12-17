@@ -1,33 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarIcon, Sparkles } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 import { axiosSecure } from "@/Hooks/useAxiosSecure";
 import { useAuth } from "@/Context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
@@ -37,126 +10,183 @@ import { toast } from "sonner";
 interface EventFormData {
   title: string;
   description: string;
-  date: Date;
   location: string;
-  fee: number;
-  capacity: number;
   clubId: string;
+  isPaid: boolean;
+  eventFee?: number;
+  maxAttendees?: number;
+  bannerImage?: string;
+  status: "draft" | "published";
 }
 
 const CreateEvent = () => {
+  const [eventDate, setEventDate] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [date, setDate] = useState<Date>();
+
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
     setValue,
     watch,
-  } = useForm<EventFormData>();
+    formState: { errors },
+  } = useForm<EventFormData>({
+    defaultValues: {
+      isPaid: false,
+      status: "published",
+      clubId: "",
+      title: "",
+      description: "",
+      location: "",
+      bannerImage: "",
+    },
+  });
 
-  // Fetch manager's clubs
-  const { data: clubs = [] } = useQuery({
+  /* ================= Fetch Manager Clubs ================= */
+  const { data: clubs = [], isLoading } = useQuery({
     queryKey: ["manager-clubs", user?.email],
+    enabled: !!user?.email,
     queryFn: async () => {
       const res = await axiosSecure.get(`/clubs/${user?.email}`);
       return res.data;
     },
-    enabled: !!user?.email,
   });
+  console.log(clubs);
 
-  const selectedClubId = watch("clubId");
+  const isPaid = watch("isPaid");
+  const clubId = watch("clubId");
 
+  /* ================= Submit ================= */
   const onSubmit = async (data: EventFormData) => {
-    if (!date) {
-      toast.error("Please select an event date");
+    if (!eventDate) {
+      toast.error("Please select event date");
       return;
     }
 
-    if (!selectedClubId) {
-      toast.error("Please select a club for this event");
+    if (!data.clubId) {
+      toast.error("Please select a club");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const eventData = {
+      const payload = {
         title: data.title,
         description: data.description,
-        date: date.toISOString(),
+        eventDate: new Date(eventDate).toISOString(),
         location: data.location,
-        fee: data.fee || 0,
-        capacity: data.capacity || 0,
-        clubId: selectedClubId,
+        clubId: data.clubId,
+        isPaid: data.isPaid,
+        eventFee: data.isPaid ? data.eventFee : 0,
+        maxAttendees: data.maxAttendees || null,
+        bannerImage: data.bannerImage || "",
+        status: data.status,
       };
 
-      const res = await axiosSecure.post("/api/events", eventData);
+      await axiosSecure.post("/events", payload);
 
-      if (res.status === 200) {
-        toast.success("Event created successfully!");
-        navigate("/dashboard");
-      }
+      toast.success("Event created successfully 🎉");
+      navigate("/dashboard/manager/events");
     } catch (error: any) {
-      console.error("Error creating event:", error);
-      toast.error(error.response?.data?.message || "Failed to create event");
+      toast.error(error?.response?.data?.message || "Failed to create event");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Get today's date in YYYY-MM-DD format for min date
+  const today = new Date().toISOString().split("T")[0];
+
+  /* ================= UI ================= */
   return (
-    <div className="max-w-2xl mx-auto p-4">
+    <div className="  mx-auto p-4">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Create New Event
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Organize an event for your club members
-        </p>
+        <h1 className="text-3xl font-bold">Create New Event</h1>
+        <p className="text-gray-500">Organize an event for your club</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5" />
-            Event Details
-          </CardTitle>
-          <CardDescription>
-            Fill in the information for your new event
-          </CardDescription>
-        </CardHeader>
+      <div className="  rounded-lg shadow-md">
+        <div className="border-b p-6">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <span>✨</span>
+            Event Information
+          </h2>
+          <p className="text-gray-600 dark:text-gray-100 text-sm mt-1">
+            Fill out the details below to create an event
+          </p>
+        </div>
 
-        <CardContent>
+        <div className="p-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Event Title */}
+            {/* Club */}
             <div className="space-y-2">
-              <Label htmlFor="title">Event Title *</Label>
-              <Input
-                id="title"
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-100">
+                Club *
+              </label>
+              <select
+                value={clubId || ""}
+                onChange={(e) => setValue("clubId", e.target.value)}
+                disabled={isLoading}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+              >
+                <option
+                  className=" bg-white dark:bg-black text-black dark:text-white"
+                  value=""
+                >
+                  {isLoading ? "Loading clubs..." : "Select club"}
+                </option>
+                {Array.isArray(clubs) && clubs.length > 0
+                  ? clubs.map((club: any) => (
+                      <option
+                        key={club._id}
+                        value={club._id}
+                        className=" bg-white dark:bg-black text-black dark:text-white"
+                      >
+                        {club.clubName}
+                      </option>
+                    ))
+                  : !isLoading && (
+                      <option disabled>
+                        No clubs found. Create a club first.
+                      </option>
+                    )}
+              </select>
+              {errors.clubId && (
+                <p className="text-sm text-red-500">{errors.clubId.message}</p>
+              )}
+            </div>
+
+            {/* Title */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium dark:text-gray-100 text-gray-700">
+                Event Title *
+              </label>
+              <input
+                type="text"
+                {...register("title", { required: "Title is required" })}
                 placeholder="Enter event title"
-                {...register("title", { required: "Event title is required" })}
-                className={cn(errors.title && "border-red-500")}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {errors.title && (
                 <p className="text-sm text-red-500">{errors.title.message}</p>
               )}
             </div>
 
-            {/* Event Description */}
+            {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description">Description *</Label>
-              <Textarea
-                id="description"
-                placeholder="Describe your event..."
+              <label className="block text-sm font-medium dark:text-gray-100 text-gray-700">
+                Description *
+              </label>
+              <textarea
                 rows={4}
                 {...register("description", {
                   required: "Description is required",
                 })}
-                className={cn(errors.description && "border-red-500")}
+                placeholder="Describe your event"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               {errors.description && (
                 <p className="text-sm text-red-500">
@@ -165,144 +195,158 @@ const CreateEvent = () => {
               )}
             </div>
 
-            {/* Club Selection */}
+            {/* Date */}
             <div className="space-y-2">
-              <Label>Club *</Label>
-              <Select onValueChange={(value) => setValue("clubId", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a club for this event" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clubs.map((club: any) => (
-                    <SelectItem key={club._id} value={club._id}>
-                      {club.clubName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {clubs.length === 0 && (
-                <p className="text-sm text-gray-500">
-                  You need to create a club first before creating events
+              <label className="block text-sm font-medium dark:text-gray-100 text-gray-700">
+                Event Date *
+              </label>
+              <input
+                type="date"
+                value={eventDate}
+                onChange={(e) => setEventDate(e.target.value)}
+                min={today}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Location */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium dark:text-gray-100 text-gray-700">
+                Location *
+              </label>
+              <input
+                type="text"
+                {...register("location", {
+                  required: "Location is required",
+                })}
+                placeholder="Enter event location"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {errors.location && (
+                <p className="text-sm text-red-500">
+                  {errors.location.message}
                 </p>
               )}
             </div>
 
-            {/* Date and Location Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Event Date */}
-              <div className="space-y-2">
-                <Label>Event Date *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "PPP") : "Pick a date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      disabled={(date) => date < new Date()}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              {/* Location */}
-              <div className="space-y-2">
-                <Label htmlFor="location">Location *</Label>
-                <Input
-                  id="location"
-                  placeholder="Event location"
-                  {...register("location", {
-                    required: "Location is required",
-                  })}
-                  className={cn(errors.location && "border-red-500")}
-                />
-                {errors.location && (
-                  <p className="text-sm text-red-500">
-                    {errors.location.message}
-                  </p>
-                )}
-              </div>
+            {/* Paid / Free */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium dark:text-gray-100 text-gray-700">
+                Event Type *
+              </label>
+              <select
+                value={isPaid ? "paid" : "free"}
+                onChange={(e) => setValue("isPaid", e.target.value === "paid")}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="free">Free</option>
+                <option value="paid">Paid</option>
+              </select>
             </div>
 
-            {/* Fee and Capacity Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Registration Fee */}
+            {/* Event Fee */}
+            {isPaid && (
               <div className="space-y-2">
-                <Label htmlFor="fee">Registration Fee ($)</Label>
-                <Input
-                  id="fee"
+                <label className="block text-sm font-medium dark:text-gray-100 text-gray-700">
+                  Event Fee *
+                </label>
+                <input
                   type="number"
-                  placeholder="0"
-                  min="0"
-                  step="0.01"
-                  {...register("fee", {
-                    valueAsNumber: true,
-                    min: { value: 0, message: "Fee cannot be negative" },
-                  })}
-                  className={cn(errors.fee && "border-red-500")}
-                />
-                {errors.fee && (
-                  <p className="text-sm text-red-500">{errors.fee.message}</p>
-                )}
-                <p className="text-xs text-gray-500">
-                  Leave empty for free events
-                </p>
-              </div>
-
-              {/* Capacity */}
-              <div className="space-y-2">
-                <Label htmlFor="capacity">Capacity</Label>
-                <Input
-                  id="capacity"
-                  type="number"
-                  placeholder="Unlimited"
                   min="1"
-                  {...register("capacity", {
+                  placeholder="Enter fee amount"
+                  {...register("eventFee", {
+                    required: isPaid ? "Event fee is required" : false,
                     valueAsNumber: true,
-                    min: { value: 1, message: "Capacity must be at least 1" },
+                    min: {
+                      value: 1,
+                      message: "Fee must be at least 1",
+                    },
                   })}
-                  className={cn(errors.capacity && "border-red-500")}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                {errors.capacity && (
+                {errors.eventFee && (
                   <p className="text-sm text-red-500">
-                    {errors.capacity.message}
+                    {errors.eventFee.message}
                   </p>
                 )}
-                <p className="text-xs text-gray-500">
-                  Leave empty for unlimited capacity
-                </p>
               </div>
+            )}
+
+            {/* Max Attendees */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium dark:text-gray-100 text-gray-700">
+                Max Attendees (Optional)
+              </label>
+              <input
+                type="number"
+                min="1"
+                placeholder="Leave empty for unlimited"
+                {...register("maxAttendees", {
+                  valueAsNumber: true,
+                  min: {
+                    value: 1,
+                    message: "Must be at least 1",
+                  },
+                })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {errors.maxAttendees && (
+                <p className="text-sm text-red-500">
+                  {errors.maxAttendees.message}
+                </p>
+              )}
             </div>
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              disabled={isSubmitting || clubs.length === 0}
-              className="w-full bg-linear-to-r from-blue-600 to-indigo-600 hover:scale-[1.02]"
-            >
-              {isSubmitting ? "Creating Event..." : "Create Event"}
-            </Button>
+            {/* Banner */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium dark:text-gray-100 text-gray-700">
+                Banner Image URL (Optional)
+              </label>
+              <input
+                type="text"
+                {...register("bannerImage")}
+                placeholder="https://example.com/image.jpg"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
-            {clubs.length === 0 && (
-              <p className="text-sm text-center text-gray-500">
-                You must have at least one approved club to create events
-              </p>
-            )}
+            {/* Status */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium dark:text-gray-100 text-gray-700">
+                Status *
+              </label>
+              <select
+                value={watch("status")}
+                onChange={(e) =>
+                  setValue("status", e.target.value as "draft" | "published")
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option
+                  value="published"
+                  className=" bg-white dark:bg-black text-black dark:text-white"
+                >
+                  Published
+                </option>
+                <option
+                  className=" bg-white dark:bg-black text-black dark:text-white"
+                  value="draft"
+                >
+                  Draft
+                </option>
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting || (!isLoading && clubs.length === 0)}
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {isSubmitting ? "Creating..." : "Create Event"}
+            </button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

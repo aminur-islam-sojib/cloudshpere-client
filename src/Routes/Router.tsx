@@ -148,6 +148,10 @@ export const router = createBrowserRouter([
         path: "club-inbox/:id",
         element: <ClubInbox />,
       },
+      {
+        path: "club-event-manager/:id",
+        element: <Events />,
+      },
     ],
   },
 ]);

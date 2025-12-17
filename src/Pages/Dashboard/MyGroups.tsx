@@ -137,27 +137,42 @@ const ManagerDashboard = () => {
                     <StatusBadge status={club.status} />
                   </TableCell>
 
-                  <TableCell className="flex justify-center gap-2">
-                    <Link to={`/clubs/${club._id}`}>
-                      <Button size="sm" variant="outline">
-                        <Info className="h-4 w-4 mr-1" /> Details
-                      </Button>
-                    </Link>
+                  <TableCell className=" ">
+                    <div className=" flex justify-center items-center gap-2">
+                      <div>
+                        <Link to={`/clubs/${club._id}`}>
+                          <Button
+                            className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                            size="sm"
+                          >
+                            <Info className="h-4 w-4 mr-1" /> Details
+                          </Button>
+                        </Link>
+                      </div>
 
-                    <div>
-                      <div className="space-y-4">
+                      <div className=" ">
                         <Button
                           size="sm"
-                          variant="outline"
                           onClick={() => {
                             setSelectedClubId(club._id);
                             setIsOpen(true);
                           }}
+                          className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
                         >
                           <Pen className="h-4 w-4 mr-1" /> Edit
                         </Button>
                       </div>
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <Link to={`/dashboard/club-event-manager/${club._id}`}>
+                      <Button
+                        className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                        size="lg"
+                      >
+                        Open
+                      </Button>
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))}
