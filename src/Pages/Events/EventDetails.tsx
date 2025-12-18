@@ -40,9 +40,9 @@ interface EventData {
   _id: string;
   title: string;
   description: string;
-  date: string;
+
   location: string;
-  fee?: number;
+  eventFee?: number;
   capacity?: number;
   clubId?: string;
   clubName?: string;
@@ -130,7 +130,7 @@ const EventDetails = () => {
     });
   };
 
-  const isEventPassed = data ? new Date(data.date) < new Date() : false;
+  const isEventPassed = data ? new Date(data.createdAt) < new Date() : false;
 
   if (isLoading) {
     return (
@@ -150,7 +150,7 @@ const EventDetails = () => {
 
   if (!data) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900">
+      <div className="flex items-center justify-center min-h-screen bg-linear-to-br  ">
         <div className="text-center">
           <div className="w-16 h-16 bg-gray-200 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-3xl">😕</span>
@@ -172,7 +172,7 @@ const EventDetails = () => {
             <div className="text-center text-white">
               <Calendar size={64} className="mx-auto mb-4 opacity-80" />
               <h1 className="text-3xl font-bold mb-2">{data.title}</h1>
-              <p className="text-lg opacity-90">{formatDate(data.date)}</p>
+              <p className="text-lg opacity-90">{formatDate(data.createdAt)}</p>
             </div>
           </div>
         </div>
@@ -206,7 +206,7 @@ const EventDetails = () => {
                   <div>
                     <p className="font-medium">Date & Time</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {formatDate(data.date)}
+                      {formatDate(data.createdAt)}
                     </p>
                   </div>
                 </div>
@@ -228,7 +228,9 @@ const EventDetails = () => {
                   <div>
                     <p className="font-medium">Registration Fee</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {data.fee && data.fee > 0 ? `$${data.fee}` : "Free"}
+                      {data.eventFee && data.eventFee > 0
+                        ? `$${data.eventFee}`
+                        : "Free"}
                     </p>
                   </div>
                 </div>
@@ -266,11 +268,13 @@ const EventDetails = () => {
                   <div className="flex justify-between items-center">
                     <span className="font-medium">Registration Fee:</span>
                     <span className="text-lg font-bold text-green-600">
-                      {data.fee && data.fee > 0 ? `$${data.fee}` : "Free"}
+                      {data.eventFee && data.eventFee > 0
+                        ? `$${data.eventFee}`
+                        : "Free"}
                     </span>
                   </div>
 
-                  {data.fee && data.fee > 0 && (
+                  {data.eventFee && data.eventFee > 0 && (
                     <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                       <CreditCard className="w-4 h-4" />
                       <span>Secure payment required</span>
@@ -314,9 +318,9 @@ const EventDetails = () => {
             <AlertDialogTitle>Confirm Registration</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to register for "{data.title}"?
-              {data.fee && data.fee > 0 && (
+              {data.eventFee && data.eventFee > 0 && (
                 <span className="block mt-2 font-medium text-red-600">
-                  This will cost ${data.fee} and redirect you to payment.
+                  This will cost ${data.eventFee} and redirect you to payment.
                 </span>
               )}
             </AlertDialogDescription>
@@ -324,7 +328,9 @@ const EventDetails = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmRegister}>
-              {data.fee && data.fee > 0 ? "Proceed to Payment" : "Register"}
+              {data.eventFee && data.eventFee > 0
+                ? "Proceed to Payment"
+                : "Register"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

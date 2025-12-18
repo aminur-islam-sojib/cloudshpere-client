@@ -28,7 +28,7 @@ const MemberDasHome = () => {
   const { data: memberships = [] } = useQuery({
     queryKey: ["user-memberships"],
     queryFn: async () => {
-      const res = await axiosSecure.get("/api/memberships/user");
+      const res = await axiosSecure.get("/memberships/user");
       return res.data;
     },
   });
@@ -36,13 +36,13 @@ const MemberDasHome = () => {
   const stats = [
     {
       title: "My Memberships",
-      value: analytics?.myMemberships || 0,
+      value: analytics?.myClubs || 0,
       icon: <Building className="h-6 w-6 text-primary" />,
       desc: "Active club memberships",
     },
     {
       title: "Event Registrations",
-      value: analytics?.myRegistrations || 0,
+      value: analytics?.totalEvents || 0,
       icon: <CalendarDays className="h-6 w-6 text-primary" />,
       desc: "Events I'm registered for",
     },
