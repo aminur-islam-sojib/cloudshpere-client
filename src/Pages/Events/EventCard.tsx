@@ -9,20 +9,21 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, MapPin, Users } from "lucide-react";
 import { Link } from "react-router";
+import type { EventStatus } from "./Events_text";
 
 type EventsType = {
-  bannerImage: string;
-  clubId: string;
-  createdAt: string;
+  _id: string;
+  title: string;
   description: string;
   eventDate: string;
-  eventFee: number;
-  isPaid: boolean;
   location: string;
-  maxAttendees: number;
-  status: string;
-  title: string;
-  _id: string;
+  clubId: string;
+  isPaid: boolean;
+  eventFee: number;
+  maxAttendees: number | null;
+  bannerImage: string;
+  status: EventStatus;
+  createdAt: string;
 };
 
 type EventsProps = {
@@ -91,7 +92,12 @@ const EventCard = ({ event }: EventsProps) => {
         <span className="font-medium">{isPaid ? `৳${eventFee}` : "Free"}</span>
 
         <Link to={`/dashboard/event-details/${event._id}`}>
-          <Button size="sm">View Details</Button>
+          <Button
+            className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+            size="sm"
+          >
+            View Details
+          </Button>
         </Link>
       </CardFooter>
     </Card>

@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import EventCard from "../Events/EventCard";
 import AppLoader from "@/components/Shared/Loader/AppLoader";
+import type { EventType } from "../Events/Events_text";
 
 interface Club {
   _id: string;
@@ -21,20 +22,6 @@ interface Club {
   status: string;
   createdAt: string;
 }
-type EventsType = {
-  bannerImage: string;
-  clubId: string;
-  createdAt: string;
-  description: string;
-  eventDate: string;
-  eventFee: number;
-  isPaid: boolean;
-  location: string;
-  maxAttendees: number;
-  status: string;
-  title: string;
-  _id: string;
-};
 
 interface Membership {
   _id: string;
@@ -69,18 +56,18 @@ const ClubInbox = () => {
       },
     });
 
-  const { data: events = [] } = useQuery({
-    queryKey: ["events", id],
+  const { data: events = [], isLoading: clubsLoading } = useQuery<EventType[]>({
+    queryKey: ["club-events", id],
     enabled: !!id,
     queryFn: async () => {
-      const res = await axiosSecure.get(`/events?clubId=${id}`);
+      const res = await axiosSecure.get<EventType[]>(`/club-events/${id}`);
       return res.data;
     },
   });
 
   console.log(events);
 
-  const isLoading = clubLoading || membershipLoading;
+  const isLoading = clubLoading || membershipLoading || clubsLoading;
 
   if (isLoading) {
     return <AppLoader />;
@@ -156,8 +143,7 @@ const ClubInbox = () => {
       )}
 
       <div className=" flex flex-col gap-2 mt-5">
-        {events &&
-          events.map((event: EventsType) => <EventCard event={event} />)}
+        {events && events.map((event) => <EventCard event={event} />)}
       </div>
     </div>
   );

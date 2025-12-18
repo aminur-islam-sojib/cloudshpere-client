@@ -6,6 +6,7 @@ import { useAuth } from "@/Context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 interface EventFormData {
   title: string;
@@ -339,13 +340,13 @@ const CreateEvent = () => {
               </select>
             </div>
 
-            <button
+            <Button
+              className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
               type="submit"
               disabled={isSubmitting || (!isLoading && clubs.length === 0)}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
               {isSubmitting ? "Creating..." : "Create Event"}
-            </button>
+            </Button>
           </form>
         </div>
       </div>

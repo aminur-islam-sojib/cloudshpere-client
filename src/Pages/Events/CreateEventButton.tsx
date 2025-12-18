@@ -9,8 +9,12 @@ const CreateEventButton = () => {
   return (
     <>
       <div>
-        <Button onClick={() => setIsContactOpen(true)} variant="default">
-          Contact Form Modal
+        <Button
+          className=" bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+          onClick={() => setIsContactOpen(true)}
+          variant="default"
+        >
+          Create Event
         </Button>
       </div>
       <Modal

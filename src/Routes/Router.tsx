@@ -26,6 +26,7 @@ import EventDetails from "@/Pages/Events/EventDetails";
 import CreateEvent from "@/Pages/Events/CreateEvent";
 import AllEvents from "@/Pages/Events/AllEvents";
 import NotFoundPage from "@/Pages/ErrorPage/NotFound";
+import EventsTest from "@/Pages/Events/Events_text";
 
 export const router = createBrowserRouter([
   {
@@ -153,7 +154,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "club-event-manager/:id",
-        element: <Events />,
+        element: <EventsTest />,
       },
       {
         path: "manager/events",
