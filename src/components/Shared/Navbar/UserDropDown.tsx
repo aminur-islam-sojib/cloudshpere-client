@@ -13,7 +13,7 @@ import React, { useState, useEffect, useRef, type ReactNode } from "react";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
 import ThemeToggle from "../ThemeToggle/ThemeToggle";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import useGetRole from "@/Hooks/useGetRole";
 
 interface DropdownMenuProps {
@@ -174,8 +174,10 @@ export default function UserProfileDropdown() {
             Your Profile
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => console.log("Settings")}>
-            <Settings className="mr-3 h-4 w-4 text-zinc-500" />
-            Settings
+            <Link to={"/dashboard/settings"} className=" flex">
+              <Settings className="mr-3 h-4 w-4 text-zinc-500" />
+              Settings
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => console.log("Billing")}>
             <CreditCard className="mr-3 h-4 w-4 text-zinc-500" />
