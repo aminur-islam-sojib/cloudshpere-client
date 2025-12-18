@@ -1,9 +1,29 @@
 import { Users, Sparkles, MessageCircle, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Hero() {
   const handleGetStarted = () => {
     console.log("Getting started");
     // Handle button click
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+    },
   };
 
   return (
@@ -12,15 +32,28 @@ export default function Hero() {
       <div className="container mx-auto px-6 py-20">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
-          <div className="space-y-8">
-            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-purple-100 dark:bg-purple-900/30 rounded-full">
+          <motion.div
+            className="space-y-8"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.div
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-purple-100 dark:bg-purple-900/30 rounded-full"
+              variants={itemVariants}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
               <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
               <span className="text-sm font-medium text-purple-600 dark:text-purple-400">
                 Join thousands of groups today
               </span>
-            </div>
+            </motion.div>
 
-            <h1 className="text-5xl lg:text-6xl font-bold leading-tight">
+            <motion.h1
+              className="text-5xl lg:text-6xl font-bold leading-tight"
+              variants={itemVariants}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
               <span className="text-gray-900 dark:text-white">
                 Create & Join
               </span>
@@ -28,27 +61,40 @@ export default function Hero() {
               <span className="bg-linear-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 Amazing Groups
               </span>
-            </h1>
+            </motion.h1>
 
-            <p className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed">
+            <motion.p
+              className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed"
+              variants={itemVariants}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
               Connect with like-minded people, share incredible content, and
               build communities that matter. Create your own group or discover
               thousands of existing ones.
-            </p>
+            </motion.p>
 
             {/* CTA Button */}
-            <div>
-              <button
+            <motion.div
+              variants={itemVariants}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <motion.button
                 onClick={handleGetStarted}
-                className="px-10 py-5 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 text-lg rounded-full font-semibold flex items-center space-x-3 hover:scale-105"
+                className="px-10 py-5 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 text-lg rounded-full font-semibold flex items-center space-x-3"
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.2 }}
               >
                 <span>Get Started Free</span>
                 <ArrowRight className="w-6 h-6" />
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
 
             {/* Stats */}
-            <div className="flex items-center space-x-8 pt-4">
+            <motion.div
+              className="flex items-center space-x-8 pt-4"
+              variants={itemVariants}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
               <div>
                 <div className="text-3xl font-bold text-gray-900 dark:text-white">
                   50K+
@@ -75,8 +121,8 @@ export default function Hero() {
                   User Rating
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Right Content - Visual */}
           <div className="relative">
