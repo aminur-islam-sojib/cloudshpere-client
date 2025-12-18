@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle2, Download, Mail, CreditCard, Copy } from "lucide-react";
 import { toast } from "sonner";
+import AppLoader from "@/components/Shared/Loader/AppLoader";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -96,8 +97,7 @@ Contact: ${clubDetails.managerEmail}
     toast.success("Receipt downloaded");
   };
 
-  if (isLoading || clubLoading)
-    return <p className="text-center mt-10">Processing payment...</p>;
+  if (isLoading || clubLoading) return <AppLoader />;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">

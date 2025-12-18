@@ -6,6 +6,7 @@ import { Check, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
+import AppLoader from "@/components/Shared/Loader/AppLoader";
 
 interface Club {
   _id: string;
@@ -87,11 +88,7 @@ const JoinedClub = () => {
   console.log(memberships);
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <AppLoader />;
   }
 
   if (membershipsWithClubs.length === 0) {

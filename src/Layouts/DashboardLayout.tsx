@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import useGetRole from "@/Hooks/useGetRole";
 import { Button } from "@/components/ui/button";
 import UserProfileDropdown from "@/components/Shared/Navbar/UserDropDown";
+import AppLoader from "@/components/Shared/Loader/AppLoader";
 // import UserProfileDropdown from "@/components/Shared/Navbar/UserDropDown";
 
 // Define navigation item type
@@ -118,14 +119,7 @@ const DashboardLayout = () => {
 
   // Show loading state while role is being fetched
   if (roleLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-slate-900">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-300">Loading dashboard...</p>
-        </div>
-      </div>
-    );
+    return <AppLoader />;
   }
 
   return (

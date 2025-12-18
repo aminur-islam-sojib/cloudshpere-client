@@ -6,6 +6,7 @@ import { axiosSecure } from "@/Hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import AppLoader from "@/components/Shared/Loader/AppLoader";
 
 interface EditClubModalContentType {
   clubId: string;
@@ -89,13 +90,7 @@ const EditClubModalContent = ({
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <p className="text-gray-600 dark:text-gray-400">
-          Loading club details...
-        </p>
-      </div>
-    );
+    return <AppLoader />;
   }
 
   if (!club) {

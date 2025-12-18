@@ -21,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router";
 import Modal from "@/components/ui/modal";
 import EditClubModalContent from "../Clubs/EditClubModalContent";
+import AppLoader from "@/components/Shared/Loader/AppLoader";
 
 const ManagerDashboard = () => {
   const { user } = useAuth();
@@ -45,7 +46,7 @@ const ManagerDashboard = () => {
   const pending = clubs.filter((c: any) => c.status === "pending").length;
   const rejected = clubs.filter((c: any) => c.status === "rejected").length;
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <AppLoader />;
 
   return (
     <div className="p-4 md:p-6 space-y-6">

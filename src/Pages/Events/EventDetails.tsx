@@ -24,7 +24,6 @@ import {
   Calendar,
   Users,
   DollarSign,
-  Sparkles,
   CreditCard,
   UserPlus,
   Clock,
@@ -35,6 +34,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import axiosPublic from "@/Hooks/axiosPublic";
 import { axiosSecure } from "@/Hooks/useAxiosSecure";
 import { useAuth } from "@/Context/AuthContext";
+import AppLoader from "@/components/Shared/Loader/AppLoader";
 
 interface EventData {
   _id: string;
@@ -133,19 +133,7 @@ const EventDetails = () => {
   const isEventPassed = data ? new Date(data.createdAt) < new Date() : false;
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900">
-        <div className="text-center">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 dark:border-gray-700 border-t-blue-600 dark:border-t-blue-500 mx-auto mb-4"></div>
-            <Sparkles className="w-6 h-6 text-blue-600 dark:text-blue-400 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
-          </div>
-          <p className="text-lg font-medium text-gray-700 dark:text-gray-300">
-            Loading event details...
-          </p>
-        </div>
-      </div>
-    );
+    return <AppLoader />;
   }
 
   if (!data) {

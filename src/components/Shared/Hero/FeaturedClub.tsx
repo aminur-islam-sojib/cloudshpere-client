@@ -4,6 +4,7 @@ import axiosPublic from "@/Hooks/axiosPublic";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, CalendarDays, MapPin, Users } from "lucide-react";
 import { useNavigate } from "react-router";
+import AppLoader from "@/components/Shared/Loader/AppLoader";
 const DEFAULT_IMAGE = "/unsupportedImg.jpeg";
 type Club = {
   _id: string;
@@ -45,9 +46,7 @@ const FeaturedClub = () => {
         </div>
         <div>
           {/* -------- STATES -------- */}
-          {isLoading && (
-            <p className="text-center text-gray-500 py-20">Loading clubs...</p>
-          )}
+          {isLoading && <AppLoader />}
 
           {!isLoading && clubs.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500">

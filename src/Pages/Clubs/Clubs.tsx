@@ -13,6 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import axiosPublic from "@/Hooks/axiosPublic";
 import { MapPin, CalendarDays, ArrowRight, Users, Search } from "lucide-react";
 import { useNavigate } from "react-router";
+import AppLoader from "@/components/Shared/Loader/AppLoader";
 
 // ---------------- TYPES ----------------
 type Club = {
@@ -102,9 +103,7 @@ const Clubs: React.FC = () => {
       </div>
 
       {/* -------- STATES -------- */}
-      {isLoading && (
-        <p className="text-center text-gray-500 py-20">Loading clubs...</p>
-      )}
+      {isLoading && <AppLoader />}
 
       {!isLoading && clubs.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500">

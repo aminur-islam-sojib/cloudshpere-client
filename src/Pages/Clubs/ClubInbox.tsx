@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import EventCard from "../Events/EventCard";
+import AppLoader from "@/components/Shared/Loader/AppLoader";
 
 interface Club {
   _id: string;
@@ -82,11 +83,7 @@ const ClubInbox = () => {
   const isLoading = clubLoading || membershipLoading;
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>
-      </div>
-    );
+    return <AppLoader />;
   }
 
   if (!clubDetails) {
