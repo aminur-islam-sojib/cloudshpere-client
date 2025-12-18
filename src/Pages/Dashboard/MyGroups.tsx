@@ -1,10 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useAuth } from "@/Context/AuthContext";
 import { axiosSecure } from "@/Hooks/useAxiosSecure";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
-import { Search, CheckCircle, Clock, XCircle, Info, Pen } from "lucide-react";
+import {
+  Search,
+  CheckCircle,
+  Clock,
+  XCircle,
+  Info,
+  Pen,
+  Trash,
+} from "lucide-react";
 
 import {
   Table,
@@ -22,10 +30,12 @@ import { Link } from "react-router";
 import Modal from "@/components/ui/modal";
 import EditClubModalContent from "../Clubs/EditClubModalContent";
 import AppLoader from "@/components/Shared/Loader/AppLoader";
+import Swal from "sweetalert2";
+import { toast } from "sonner";
 
 const ManagerDashboard = () => {
   const { user } = useAuth();
-
+  const queryClient = useQueryClient();
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isOpen, setIsOpen] = useState(false);
@@ -47,6 +57,31 @@ const ManagerDashboard = () => {
   const rejected = clubs.filter((c: any) => c.status === "rejected").length;
 
   if (isLoading) return <AppLoader />;
+
+  const handleDeleteClub = (id: string) => {
+    const deleteClub = async () => {
+      const res = await axiosSecure.delete(`/club/${id}`);
+      return res.data;
+    };
+
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You wanna Delete this Club!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, Delete!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        deleteClub();
+        queryClient.refetchQueries({
+          queryKey: ["manager-clubs", user?.email, searchText, statusFilter],
+        });
+        toast.success("Delete Successfully!");
+      }
+    });
+  };
 
   return (
     <div className="p-4 md:p-6 space-y-6">
@@ -146,7 +181,7 @@ const ManagerDashboard = () => {
                             className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
                             size="sm"
                           >
-                            <Info className="h-4 w-4 mr-1" /> Details
+                            <Info className="h-4 w-4" /> Details
                           </Button>
                         </Link>
                       </div>
@@ -160,7 +195,16 @@ const ManagerDashboard = () => {
                           }}
                           className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
                         >
-                          <Pen className="h-4 w-4 mr-1" /> Edit
+                          <Pen className="h-4 w-4 " /> Edit
+                        </Button>
+                      </div>
+                      <div className=" ">
+                        <Button
+                          size="sm"
+                          onClick={() => handleDeleteClub(club._id)}
+                          variant="destructive"
+                        >
+                          <Trash className="h-4 w-4 " /> Delete
                         </Button>
                       </div>
                     </div>

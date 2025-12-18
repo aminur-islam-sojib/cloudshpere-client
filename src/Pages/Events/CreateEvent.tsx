@@ -17,6 +17,7 @@ interface EventFormData {
   maxAttendees?: number;
   bannerImage?: string;
   status: "draft" | "published";
+  creatorEmail: string;
 }
 
 const CreateEvent = () => {

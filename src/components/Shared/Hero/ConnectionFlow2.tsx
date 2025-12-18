@@ -1,10 +1,11 @@
 import { Users, Sparkles, MessageCircle, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router";
 
 export default function Hero() {
+  const navigate = useNavigate();
   const handleGetStarted = () => {
-    console.log("Getting started");
-    // Handle button click
+    navigate("/clubs");
   };
 
   const containerVariants = {
