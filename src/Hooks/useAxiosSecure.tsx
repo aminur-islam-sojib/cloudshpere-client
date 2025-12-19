@@ -2,7 +2,7 @@
 import axios from "axios";
 
 export const axiosSecure = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
+  baseURL: import.meta.env.VITE_BASE_URL_SECURE,
 });
 
 // --- Request Interceptor (Add JWT automatically) ---
