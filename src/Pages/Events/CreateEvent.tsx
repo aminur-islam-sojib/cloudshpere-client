@@ -3,8 +3,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { axiosSecure } from "@/Hooks/useAxiosSecure";
 import { useAuth } from "@/Context/AuthContext";
-import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
@@ -21,12 +20,11 @@ interface EventFormData {
   creatorEmail: string;
 }
 
-const CreateEvent = () => {
+const CreateEvent = ({ closeModal }: { closeModal?: () => void }) => {
   const [eventDate, setEventDate] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const queryClient = useQueryClient();
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   const {
     register,
@@ -92,7 +90,12 @@ const CreateEvent = () => {
       await axiosSecure.post("/events", payload);
 
       toast.success("Event created successfully 🎉");
-      navigate("/dashboard/manager/events");
+      queryClient.refetchQueries({
+        queryKey: ["club-events", data.clubId],
+      });
+      if (closeModal) {
+        closeModal();
+      }
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Failed to create event");
     } finally {

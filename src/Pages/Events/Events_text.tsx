@@ -33,6 +33,8 @@ const EventsTest = () => {
     },
   });
 
+  console.log(clubEvents);
+
   return (
     <div className="space-y-6">
       {/* Header */}

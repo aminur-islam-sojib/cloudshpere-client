@@ -32,6 +32,7 @@ import EditClubModalContent from "../Clubs/EditClubModalContent";
 import AppLoader from "@/components/Shared/Loader/AppLoader";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
+import axiosPublic from "@/Hooks/axiosPublic";
 
 const ManagerDashboard = () => {
   const { user } = useAuth();
@@ -50,6 +51,25 @@ const ManagerDashboard = () => {
       return res.data;
     },
   });
+
+  const { data: clubUsers = [] } = useQuery({
+    queryKey: ["club-users"],
+
+    queryFn: async () => {
+      const res = await axiosPublic.get(`/api/manager/club-stats`);
+      return res.data;
+    },
+  });
+
+  const ClubUserMap = clubUsers.reduce(
+    (acc: Record<string, number>, item: any) => {
+      acc[item._id] = item.totalUsers;
+      return acc;
+    },
+    {}
+  );
+
+  console.log("clubUserMap", ClubUserMap);
 
   const total = clubs.length;
   const approved = clubs.filter((c: any) => c.status === "approved").length;
@@ -149,6 +169,7 @@ const ManagerDashboard = () => {
                 <TableHead>Location</TableHead>
                 <TableHead>Fee</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Users</TableHead>
                 <TableHead className=" text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -172,7 +193,11 @@ const ManagerDashboard = () => {
                   <TableCell>
                     <StatusBadge status={club.status} />
                   </TableCell>
-
+                  <TableCell>
+                    <div className=" font-bold">
+                      {ClubUserMap[club._id] ?? 0}
+                    </div>
+                  </TableCell>
                   <TableCell className=" ">
                     <div className=" flex justify-center items-center gap-2">
                       <div>

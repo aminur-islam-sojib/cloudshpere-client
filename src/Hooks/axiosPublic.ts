@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosPublic = axios.create({
-  baseURL: "https://club-sphere-serve.vercel.app",
+  baseURL: import.meta.env.VITE_BASE_URL,
 });
 
 export default axiosPublic;

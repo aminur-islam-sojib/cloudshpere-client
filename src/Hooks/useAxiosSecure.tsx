@@ -2,7 +2,7 @@
 import axios from "axios";
 
 export const axiosSecure = axios.create({
-  baseURL: "https://club-sphere-serve.vercel.app/api",
+  baseURL: import.meta.env.VITE_BASE_URL,
 });
 
 // --- Request Interceptor (Add JWT automatically) ---

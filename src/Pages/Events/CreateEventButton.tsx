@@ -4,7 +4,9 @@ import { useState } from "react";
 import CreateEvent from "./CreateEvent";
 
 const CreateEventButton = () => {
-  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState<boolean>(false);
+
+  const closeModal = () => setIsContactOpen(false);
 
   return (
     <>
@@ -23,7 +25,7 @@ const CreateEventButton = () => {
         size="xl"
       >
         <>
-          <CreateEvent />
+          <CreateEvent closeModal={closeModal} />
         </>
       </Modal>
     </>
