@@ -26,6 +26,9 @@ import EventDetails from "@/Pages/Events/EventDetails";
 import CreateEvent from "@/Pages/Events/CreateEvent";
 import NotFoundPage from "@/Pages/ErrorPage/NotFound";
 import EventsTest from "@/Pages/Events/Events_text";
+import PrivacyPolicyPage from "@/Pages/PrivacyPlicy/PrivacyPlicy";
+import TermsAndConditionsPage from "@/Pages/Terms&Conditon.tsx/Terms&Condition";
+import CookiePolicyPage from "@/Pages/CoociesPolicy/CoociesPolicy";
 
 export const router = createBrowserRouter([
   {
@@ -76,6 +79,18 @@ export const router = createBrowserRouter([
             <CreateEvent />
           </ProtectedRoute>
         ),
+      },
+      {
+        path: "privacy-policy",
+        element: <PrivacyPolicyPage />,
+      },
+      {
+        path: "terms-condition",
+        element: <TermsAndConditionsPage />,
+      },
+      {
+        path: "cookies-policy",
+        element: <CookiePolicyPage />,
       },
     ],
   },

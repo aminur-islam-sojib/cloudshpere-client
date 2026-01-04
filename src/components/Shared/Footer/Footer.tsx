@@ -1,4 +1,5 @@
 import { Github, Linkedin, Mail, X } from "lucide-react";
+import { Link } from "react-router";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -93,20 +94,29 @@ const Footer = () => {
               </h4>
               <ul className="space-y-3">
                 <li>
-                  <a className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                  <Link
+                    to={"/privacy-policy"}
+                    className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  >
                     Privacy Policy
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                  <Link
+                    to={"/terms-condition"}
+                    className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  >
                     Terms of Service
-                  </a>
+                  </Link>
                 </li>
 
                 <li>
-                  <a className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                  <Link
+                    to={"cookies-policy"}
+                    className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                  >
                     Cookie Policy
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
