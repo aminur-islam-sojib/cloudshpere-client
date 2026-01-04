@@ -56,36 +56,54 @@ const Login: React.FC = () => {
   const { googleLogin, login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
   const location = useLocation();
   const navigate = useNavigate();
-
   const from = location.state?.from || "/";
-  const { register, handleSubmit } = useForm<Inputs>();
 
-  const togglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
+  const { register, handleSubmit, setValue } = useForm<Inputs>();
+
+  // 🔐 DEMO CREDENTIALS
+  const ADMIN_CREDENTIAL = {
+    email: "admin@gmail.com",
+    password: "Admin@123",
   };
 
+  const MANAGER_CREDENTIAL = {
+    email: "manager@gmail.com",
+    password: "Manager@123",
+  };
+
+  // ------------------------
+  // Auto Fill Handlers
+  // ------------------------
+  const fillAdminCredential = () => {
+    setValue("email", ADMIN_CREDENTIAL.email);
+    setValue("password", ADMIN_CREDENTIAL.password);
+  };
+
+  const fillManagerCredential = () => {
+    setValue("email", MANAGER_CREDENTIAL.email);
+    setValue("password", MANAGER_CREDENTIAL.password);
+  };
+
+  // ------------------------
+  // Submit Handler
+  // ------------------------
   const onsubmit: SubmitHandler<Inputs> = async (data) => {
     try {
       setIsLoading(true);
       const userRes = await login(data.email, data.password);
 
-      // Generate token immediately after successful login
-      try {
-        const tokenRes = await axiosPublic.post("/api/auth/jwt", {
-          email: userRes.user.email,
-          name: userRes.user.displayName || "User",
-          photoURL: userRes.user.photoURL || "",
-        });
-        const token = tokenRes.data.token;
-        localStorage.setItem("jwt_token", token);
-        toast.success("Login Successful!");
-        navigate(from, { replace: true });
-      } catch (tokenError) {
-        console.error("Token generation error:", tokenError);
-        toast.error("Failed to generate authentication token");
-      }
+      const tokenRes = await axiosPublic.post("/api/auth/jwt", {
+        email: userRes.user.email,
+        name: userRes.user.displayName || "User",
+        photoURL: userRes.user.photoURL || "",
+      });
+
+      localStorage.setItem("jwt_token", tokenRes.data.token);
+      toast.success("Login Successful!");
+      navigate(from, { replace: true });
     } catch (error: any) {
       handleAuthError(error);
     } finally {
@@ -93,26 +111,23 @@ const Login: React.FC = () => {
     }
   };
 
+  // ------------------------
+  // Google Login
+  // ------------------------
   const handleGoogleLogin = async () => {
     try {
       setIsLoading(true);
       const userRes = await googleLogin();
 
-      // Generate token immediately after Google login
-      try {
-        const tokenRes = await axiosPublic.post("/api/auth/jwt", {
-          email: userRes.user.email,
-          name: userRes.user.displayName || "User",
-          photoURL: userRes.user.photoURL || "",
-        });
-        const token = tokenRes.data.token;
-        localStorage.setItem("jwt_token", token);
-        toast.success("Google Login Successful!");
-        navigate(from, { replace: true });
-      } catch (tokenError) {
-        console.error("Token generation error:", tokenError);
-        toast.error("Failed to generate authentication token");
-      }
+      const tokenRes = await axiosPublic.post("/api/auth/jwt", {
+        email: userRes.user.email,
+        name: userRes.user.displayName || "User",
+        photoURL: userRes.user.photoURL || "",
+      });
+
+      localStorage.setItem("jwt_token", tokenRes.data.token);
+      toast.success("Google Login Successful!");
+      navigate(from, { replace: true });
     } catch (error: any) {
       handleAuthError(error);
     } finally {
@@ -121,12 +136,10 @@ const Login: React.FC = () => {
   };
 
   // ------------------------
-  // Handle Firebase Errors
+  // Firebase Error Handler
   // ------------------------
   const handleAuthError = (error: any) => {
-    const code = error.code;
-
-    switch (code) {
+    switch (error.code) {
       case "auth/invalid-credential":
         toast.error("Invalid email or password.");
         break;
@@ -137,112 +150,114 @@ const Login: React.FC = () => {
         toast.error("Incorrect password.");
         break;
       case "auth/popup-closed-by-user":
-        toast.warning("Google login popup closed.");
+        toast.warning("Google login cancelled.");
         break;
       default:
-        toast.error("Authentication error. Try again.");
-        console.log("Firebase Error:", error);
+        toast.error("Authentication failed.");
+        console.log(error);
     }
   };
 
-  // ========================
-  // User already authenticated in handlers
-  // Token is generated immediately on login/Google auth
-  // ========================
-
   return (
     <div className="min-h-screen bg-white dark:bg-black flex justify-center items-center">
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-        <div className="w-full max-w-md space-y-8">
-          {/* Logo + Title */}
-          <div className="text-center">
-            <div className="w-12 h-12 bg-linear-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-6">
-              <ShieldIcon className="text-white" />
-            </div>
-            <h2 className="text-3xl font-bold">Sign In</h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
-              Access your secure account
-            </p>
+      <div className="w-full max-w-md space-y-4 p-8">
+        {/* Header */}
+        <div className="text-center">
+          <div className="w-12 h-12 bg-linear-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <ShieldIcon className="text-white" />
           </div>
-
-          {/* LOGIN FORM */}
-          <form onSubmit={handleSubmit(onsubmit)} className="space-y-6">
-            {/* Email */}
-            <div>
-              <label className="block text-sm mb-2">Email address</label>
-              <div className="relative">
-                <AtSignIcon className="absolute left-3 top-3 text-gray-400" />
-                <input
-                  {...register("email")}
-                  type="email"
-                  placeholder="you@example.com"
-                  className="w-full pl-10 pr-3 py-3 border rounded-lg bg-white dark:bg-black"
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-sm mb-2">Password</label>
-              <div className="relative">
-                <LockIcon className="absolute left-3 top-3 text-gray-400" />
-                <input
-                  {...register("password")}
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  className="w-full pl-10 pr-12 py-3 border rounded-lg bg-white dark:bg-black"
-                />
-                <Button
-                  type="button"
-                  onClick={togglePasswordVisibility}
-                  className="absolute right-3 top-3 text-gray-500"
-                  variant="ghost"
-                  size="sm"
-                >
-                  {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-                </Button>
-              </div>
-            </div>
-
-            {/* Submit */}
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-              size="lg"
-            >
-              {isLoading ? "Processing..." : "Sign In"}
-            </Button>
-          </form>
-
-          {/* Divider */}
-          <div className="flex items-center">
-            <div className="grow border-t"></div>
-            <span className="mx-2 text-gray-500">Or continue with</span>
-            <div className="grow border-t"></div>
-          </div>
-
-          {/* Google Login */}
-          <Button
-            onClick={handleGoogleLogin}
-            disabled={isLoading}
-            className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-            size="lg"
-          >
-            <GoogleIcon />
-            <span className="ml-3">Continue with Google</span>
-          </Button>
-
-          {/* Register Link */}
-          <div className="text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              New user?{" "}
-              <Link to="/register" className="text-indigo-600 font-medium">
-                Create an account
-              </Link>
-            </p>
-          </div>
+          <h2 className="text-3xl font-bold">Sign In</h2>
+          <p className="text-gray-500">Access your secure account</p>
         </div>
+
+        {/* Quick Login */}
+        <div className="grid grid-cols-2 gap-4">
+          <Button type="button" variant="outline" onClick={fillAdminCredential}>
+            Login as Admin
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={fillManagerCredential}
+          >
+            Login as Manager
+          </Button>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit(onsubmit)} className="space-y-4">
+          {/* Email */}
+          <div>
+            <label className="text-sm">Email</label>
+            <div className="relative">
+              <AtSignIcon className="absolute left-3 top-3 text-gray-400" />
+              <input
+                {...register("email")}
+                type="email"
+                className="w-full pl-10 py-3 border rounded-lg"
+                placeholder="you@example.com"
+              />
+            </div>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="text-sm">Password</label>
+            <div className="relative">
+              <LockIcon className="absolute left-3 top-3 text-gray-400" />
+              <input
+                {...register("password")}
+                type={showPassword ? "text" : "password"}
+                className="w-full pl-10 pr-12 py-3 border rounded-lg"
+                placeholder="••••••••"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="absolute right-3 top-3"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+              </Button>
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className=" w-full flex-1 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+          >
+            {isLoading ? "Processing..." : "Sign In"}
+          </Button>
+        </form>
+
+        <div className="flex items-center gap-3  ">
+          <div className="flex-1 h-px bg-gray-300 dark:bg-gray-700" />
+          <span className="text-xs text-gray-500 uppercase tracking-wide">
+            or
+          </span>
+          <div className="flex-1 h-px bg-gray-300 dark:bg-gray-700" />
+        </div>
+
+        {/* Google */}
+        <Button
+          onClick={handleGoogleLogin}
+          disabled={isLoading}
+          className="w-full"
+          variant="outline"
+        >
+          <GoogleIcon />
+          <span className="ml-2">Continue with Google</span>
+        </Button>
+
+        {/* Register */}
+        <p className="text-center text-sm">
+          New user?{" "}
+          <Link to="/register" className="text-indigo-600 font-medium">
+            Create account
+          </Link>
+        </p>
       </div>
     </div>
   );

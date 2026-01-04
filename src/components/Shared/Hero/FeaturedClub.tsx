@@ -79,7 +79,7 @@ const FeaturedClub = () => {
           )}
 
           {!isLoading && clubs.length > 0 && (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-2">
               {clubs.map((club, index) => (
                 <motion.div
                   key={club._id}
@@ -111,7 +111,7 @@ const FeaturedClub = () => {
                     </div>
 
                     {/* CONTENT */}
-                    <CardHeader className="pb-0">
+                    <CardHeader className="pb-0 flex-1">
                       <CardTitle className="text-lg">{club.clubName}</CardTitle>
                       <p className="text-sm text-gray-500 line-clamp-2">
                         {club.description}

@@ -1,13 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  AtSignIcon,
-  EyeIcon,
-  EyeOffIcon,
-  LockIcon,
-  ShieldIcon,
-  User2,
-} from "lucide-react";
+import { AtSignIcon, EyeIcon, EyeOffIcon, LockIcon, User2 } from "lucide-react";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useForm, type SubmitHandler } from "react-hook-form";
@@ -196,49 +189,46 @@ const Register: React.FC = () => {
   return (
     <div className="min-h-screen bg-white dark:bg-black flex justify-center items-center">
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-        <div className="w-full max-w-md space-y-8">
-          {/* Header */}
-          <div className="text-center">
-            <div className="w-12 h-12 bg-linear-to-r from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-6">
-              <ShieldIcon />
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Create Account
-            </h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
-              Join our platform
-            </p>
-          </div>
-
+        <div className="w-full max-w-md space-y-4">
           {/* Form */}
-          <form onSubmit={handleSubmit(onsubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onsubmit)} className="space-y-3">
             {/* Avatar Upload */}
-            <div className="flex justify-center">
-              <label className="relative cursor-pointer group">
-                <div className="w-24 h-24 rounded-full border-2 border-dashed flex items-center justify-center overflow-hidden bg-gray-100 dark:bg-gray-800">
-                  {avatarPreview ? (
-                    <img
-                      src={avatarPreview}
-                      alt="Avatar"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User2 className="text-gray-400" size={40} />
-                  )}
-                </div>
 
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-sm transition">
-                  {uploading ? "Uploading..." : "Upload"}
-                </div>
+            {/* Header */}
+            <div className="text-center">
+              <div className="flex justify-center">
+                <label className="relative cursor-pointer group">
+                  <div className="w-24 h-24 rounded-full border-2 border-dashed flex items-center justify-center overflow-hidden bg-gray-100 dark:bg-gray-800">
+                    {avatarPreview ? (
+                      <img
+                        src={avatarPreview}
+                        alt="Avatar"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User2 className="text-gray-400" size={40} />
+                    )}
+                  </div>
 
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-                  className="hidden"
-                />
-              </label>
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-sm transition">
+                    {uploading ? "Uploading..." : "Upload"}
+                  </div>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Create Account
+              </h2>
+              <p className="mt-2 text-gray-600 dark:text-gray-400">
+                Join our platform
+              </p>
             </div>
 
             {/* Name */}
@@ -318,7 +308,7 @@ const Register: React.FC = () => {
           {/* Divider */}
           <div className="flex items-center">
             <div className="grow border-t"></div>
-            <span className="mx-2 text-gray-500">Or continue with</span>
+            <span className="mx-2 text-gray-500">Or </span>
             <div className="grow border-t"></div>
           </div>
 

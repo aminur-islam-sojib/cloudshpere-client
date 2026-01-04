@@ -11,6 +11,7 @@ import {
   type User as FirebaseUser,
   type UserCredential,
 } from "firebase/auth";
+
 import { auth } from "@/lib/firebase.init";
 import axiosPublic from "@/Hooks/axiosPublic";
 
@@ -18,9 +19,15 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+interface ExtendedUser extends FirebaseUser {
+  role?: string;
+  name?: string;
+}
+
 interface AuthContextType {
-  user: (FirebaseUser & { role?: string; name?: string }) | null;
-  loading: boolean;
+  user: ExtendedUser | null;
+  loading: boolean; // 🔥 auth state loading
+  actionLoading: boolean; // 🔥 login/register button loading
   googleLogin: () => Promise<UserCredential>;
   createUser: (email: string, password: string) => Promise<UserCredential>;
   login: (email: string, password: string) => Promise<UserCredential>;
@@ -30,55 +37,78 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<
-    (FirebaseUser & { role?: string; name?: string }) | null
-  >(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [user, setUser] = useState<ExtendedUser | null>(null);
+  const [loading, setLoading] = useState(true); // auth observer
+  const [actionLoading, setActionLoading] = useState(false); // form buttons
 
+  // -------------------------
   // Create User
+  // -------------------------
   const createUser = async (email: string, password: string) => {
-    setLoading(true);
-    return await createUserWithEmailAndPassword(auth, email, password);
+    setActionLoading(true);
+    try {
+      return await createUserWithEmailAndPassword(auth, email, password);
+    } finally {
+      setActionLoading(false);
+    }
   };
 
+  // -------------------------
   // Login
+  // -------------------------
   const login = async (email: string, password: string) => {
-    setLoading(true);
-    return await signInWithEmailAndPassword(auth, email, password);
+    setActionLoading(true);
+    try {
+      return await signInWithEmailAndPassword(auth, email, password);
+    } finally {
+      setActionLoading(false);
+    }
   };
 
-  // Log Out
-  const logOut = async () => {
-    setLoading(true);
-    return await signOut(auth);
-  };
-
+  // -------------------------
   // Google Login
+  // -------------------------
   const googleLogin = async () => {
-    setLoading(true);
+    setActionLoading(true);
     const provider = new GoogleAuthProvider();
-    return await signInWithPopup(auth, provider);
+    try {
+      return await signInWithPopup(auth, provider);
+    } finally {
+      setActionLoading(false);
+    }
   };
 
+  // -------------------------
+  // Log Out
+  // -------------------------
+  const logOut = async () => {
+    setActionLoading(true);
+    try {
+      await signOut(auth);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // -------------------------
+  // Auth State Observer
+  // -------------------------
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         try {
-          // Fetch user profile from backend
           const token = localStorage.getItem("jwt_token");
+
           if (token) {
             const res = await axiosPublic.get("/api/users/me", {
               headers: { Authorization: `Bearer ${token}` },
             });
-            const userProfile = res.data;
 
-            // Merge Firebase user with database profile
-            const mergedUser = {
+            setUser({
               ...currentUser,
-              role: userProfile.role,
-              name: userProfile.name,
-            };
-            setUser(mergedUser);
+              role: res.data.role,
+              name: res.data.name,
+            });
           } else {
             setUser(currentUser);
           }
@@ -89,7 +119,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } else {
         setUser(null);
       }
-      setLoading(false);
+
+      setLoading(false); // 🔥 VERY IMPORTANT
     });
 
     return () => unSubscribe();
@@ -97,7 +128,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, createUser, login, logOut, googleLogin }}
+      value={{
+        user,
+        loading,
+        actionLoading,
+        createUser,
+        login,
+        logOut,
+        googleLogin,
+      }}
     >
       {children}
     </AuthContext.Provider>
@@ -107,6 +146,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used inside AuthProvider");
+  if (!context) {
+    throw new Error("useAuth must be used inside AuthProvider");
+  }
   return context;
 };

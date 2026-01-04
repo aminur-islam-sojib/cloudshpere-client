@@ -6,29 +6,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Settings, Bell, Lock, Globe, Eye, EyeOff } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Settings, Globe } from "lucide-react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/Context/AuthContext";
 import { toast } from "sonner";
-import {
-  updateProfile,
-  updateEmail,
-  updatePassword,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
-} from "firebase/auth";
+import { updateProfile, updateEmail } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 
 type UserData = {
   name: string;
   email: string;
-};
-
-type PasswordForm = {
-  currentPass: string;
-  newPass: string;
-  confirmPass: string;
 };
 
 type ThemeForm = {
@@ -39,7 +27,7 @@ const SettingsPage = () => {
   const { user } = useAuth();
 
   const { register, handleSubmit, reset } = useForm<UserData>();
-  const passwordForm = useForm<PasswordForm>();
+
   const themeForm = useForm<ThemeForm>({
     defaultValues: {
       theme:
@@ -48,11 +36,6 @@ const SettingsPage = () => {
         "auto",
     },
   });
-
-  // Password visibility toggles
-  const [showCurrent, setShowCurrent] = useState(false);
-  const [showNew, setShowNew] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
 
   // Auto-fill user data when Firebase user loads
   useEffect(() => {
@@ -84,35 +67,6 @@ const SettingsPage = () => {
       }
     } catch (err: any) {
       toast.error(err.message || "Failed to update user info");
-    }
-  };
-
-  // ------------------------------------------------------
-  // UPDATE PASSWORD (NEEDS REAUTH)
-  // ------------------------------------------------------
-  const onSubmitPassword = async (data: PasswordForm) => {
-    if (!user || !user.email) return;
-
-    if (data.newPass !== data.confirmPass) {
-      toast.error("New password and confirm password do not match!");
-      return;
-    }
-
-    try {
-      // Re-authenticate user
-      const credential = EmailAuthProvider.credential(
-        user.email,
-        data.currentPass
-      );
-      await reauthenticateWithCredential(user, credential);
-
-      // Update password
-      await updatePassword(user, data.newPass);
-      toast.success("Password changed successfully!");
-
-      passwordForm.reset();
-    } catch (err: any) {
-      toast.error(err.message || "Password update failed");
     }
   };
 
@@ -167,95 +121,6 @@ const SettingsPage = () => {
 
               <Button className=" bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                 Save Changes
-              </Button>
-            </CardContent>
-          </form>
-        </Card>
-
-        {/* ========================== NOTIFICATIONS ======================== */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex gap-2 items-center">
-              <Bell /> Notification Preferences
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {["Email", "SMS", "Push"].map((n) => (
-              <label key={n} className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4" defaultChecked />
-                <span>{n} Notifications</span>
-              </label>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* =========================== SECURITY ============================ */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex gap-2 items-center">
-              <Lock /> Security Settings
-            </CardTitle>
-          </CardHeader>
-
-          <form onSubmit={passwordForm.handleSubmit(onSubmitPassword)}>
-            <CardContent className="space-y-4">
-              {/* Current Password */}
-              <div className="relative">
-                <label className="text-sm font-medium">Current Password</label>
-                <input
-                  type={showCurrent ? "text" : "password"}
-                  {...passwordForm.register("currentPass")}
-                  className="w-full px-4 py-2 border rounded-lg dark:bg-slate-800"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowCurrent(!showCurrent)}
-                  className="absolute right-3 top-9"
-                >
-                  {showCurrent ? <EyeOff /> : <Eye />}
-                </button>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                {/* New Password */}
-                <div className="relative">
-                  <label className="text-sm font-medium">New Password</label>
-                  <input
-                    type={showNew ? "text" : "password"}
-                    {...passwordForm.register("newPass")}
-                    className="w-full px-4 py-2 border rounded-lg dark:bg-slate-800"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNew(!showNew)}
-                    className="absolute right-3 top-9"
-                  >
-                    {showNew ? <EyeOff /> : <Eye />}
-                  </button>
-                </div>
-
-                {/* Confirm Password */}
-                <div className="relative">
-                  <label className="text-sm font-medium">
-                    Confirm Password
-                  </label>
-                  <input
-                    type={showConfirm ? "text" : "password"}
-                    {...passwordForm.register("confirmPass")}
-                    className="w-full px-4 py-2 border rounded-lg dark:bg-slate-800"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirm(!showConfirm)}
-                    className="absolute right-3 top-9"
-                  >
-                    {showConfirm ? <EyeOff /> : <Eye />}
-                  </button>
-                </div>
-              </div>
-
-              <Button className=" bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
-                Change Password
               </Button>
             </CardContent>
           </form>

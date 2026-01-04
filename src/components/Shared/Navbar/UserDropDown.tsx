@@ -2,11 +2,9 @@
 import { useAuth } from "@/Context/AuthContext";
 import {
   ChevronDown,
-  CreditCard,
   HelpCircle,
   LogOut,
   Settings,
-  User,
   UserCircle,
 } from "lucide-react";
 import React, { useState, useEffect, useRef, type ReactNode } from "react";
@@ -169,19 +167,11 @@ export default function UserProfileDropdown() {
         </div>
 
         <div className="py-1">
-          <DropdownMenuItem onClick={() => console.log("Profile")}>
-            <User className="mr-3 h-4 w-4 text-zinc-500" />
-            Your Profile
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => console.log("Settings")}>
+          <DropdownMenuItem>
             <Link to={"/dashboard/settings"} className=" flex">
               <Settings className="mr-3 h-4 w-4 text-zinc-500" />
               Settings
             </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => console.log("Billing")}>
-            <CreditCard className="mr-3 h-4 w-4 text-zinc-500" />
-            Billing & Plans
           </DropdownMenuItem>
         </div>
 
