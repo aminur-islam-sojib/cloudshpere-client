@@ -41,7 +41,7 @@ const SettingsPage = () => {
   useEffect(() => {
     if (user) {
       reset({
-        name: user.displayName || "",
+        name: user.displayName || "User",
         email: user.email || "",
       });
     }
@@ -74,6 +74,26 @@ const SettingsPage = () => {
   // UPDATE THEME (LOCAL ONLY)
   // ------------------------------------------------------
   const onSubmitTheme = (data: ThemeForm) => {
+    const root = document.documentElement;
+
+    // Apply theme to DOM
+    if (data.theme === "dark") {
+      root.classList.add("dark");
+    } else if (data.theme === "light") {
+      root.classList.remove("dark");
+    } else {
+      // "auto" - check system preference
+      const prefersDark =
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (prefersDark) {
+        root.classList.add("dark");
+      } else {
+        root.classList.remove("dark");
+      }
+    }
+
+    // Save to localStorage
     localStorage.setItem("theme", data.theme);
     toast.success("Theme updated!");
   };
@@ -146,7 +166,10 @@ const SettingsPage = () => {
                 <option value="auto">Auto</option>
               </select>
 
-              <Button className=" bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+              <Button
+                type="submit"
+                className=" bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+              >
                 Save Theme
               </Button>
             </CardContent>

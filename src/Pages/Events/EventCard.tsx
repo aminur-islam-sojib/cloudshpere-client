@@ -46,7 +46,7 @@ const EventCard = ({ event }: EventsProps) => {
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-lg dark:shadow-gray-800">
       {/* Banner */}
-      <div className="h-44 w-full overflow-hidden">
+      <div className="  w-full overflow-hidden">
         <img
           src={bannerImage}
           alt={title}

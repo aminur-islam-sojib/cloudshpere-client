@@ -19,6 +19,19 @@ interface DropdownMenuProps {
   trigger: ReactNode;
 }
 
+type RoleLabelType = {
+  admin: string;
+  manager: string;
+  user: string;
+};
+type Role = "admin" | "manager" | "user" | "undefined";
+
+const roleLabel: RoleLabelType = {
+  admin: "Admin",
+  manager: "Manager",
+  user: "User",
+};
+
 const DropdownMenu = ({ children, trigger }: DropdownMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -87,7 +100,7 @@ const DropdownMenuSeparator = () => (
 export default function UserProfileDropdown() {
   const { logOut, user } = useAuth();
   const navigate = useNavigate();
-  const { role } = useGetRole();
+  const { role } = useGetRole() as { role?: Role };
   const [imgError, setImgError] = useState(false);
 
   const firstLetter = user?.displayName?.trim().charAt(0).toUpperCase() || "U";
@@ -116,7 +129,9 @@ export default function UserProfileDropdown() {
           <div className="flex items-center gap-3 pl-4  border-slate-200 dark:border-slate-800">
             <div className="hidden sm:block text-right">
               <p className="text-sm font-medium text-slate-900 dark:text-white">
-                {user?.displayName || "User"}
+                {user?.displayName ||
+                  (role && roleLabel[role as keyof RoleLabelType]) ||
+                  "User"}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">
                 {role || "Loading..."}
